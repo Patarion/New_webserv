@@ -12,5 +12,6 @@
 static const char *extensions_tab[9] = {".html", ".css", ".jpeg", ".png", ".php", ".gif", ".ico", ".js", NULL};
 
 std::vector<std::string> *directory_parser(std::string dir);
+std::string readfileContent(std::string path);
 
 #endif

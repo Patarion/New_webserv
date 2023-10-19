@@ -23,13 +23,18 @@ class Conf {
 	bool						GetMethod(std::string method);
 	int							GetAddress();
 	int							GetBodySize();
+	short int					GetMethods();
 
 	private :
 	std::string					_name;
 	unsigned int				_body;
 	int							_port;
 	int							_address;
-	bool						_methods[3];
+	bool						_get;
+	bool						_post;
+	bool						_delete;
+	std::string					_err_path;
+	std::string					_html_path;
 	std::vector<std::string>	*_error_pages;
 	std::vector<std::string>	*_html_content;
 
