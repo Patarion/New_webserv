@@ -38,14 +38,18 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> se
 {
 	static int	nb_server;
 	Conf		*conf_serv = new Conf();
+	std::string	server_data;
 	
 	if (nb_server >= serveur_count || content.find("server") != 0 || content.find("server") == std::string::npos)
 	{
 		delete conf_serv;
 		return ;
 	}
+	server_data = content.substr(content.find("{") + 1 , (content.find("}") - content.find("{") - 1));
 	std::cout << "Je parse un serveur" << std::endl;
+	std::cout << server_data;
 	nb_server++;
+	content = &content[content.find("}")];
 	parse_file(content, serveur_count, servers);
 }
 
@@ -60,7 +64,6 @@ int main (int argc, char **argv, char **env)
 	if (str_content.length() <= 0)
 		exit (EXIT_FAILURE);
 
-	std::cout << str_content;
 	if (std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}'))
 		serveur_count = std::count(str_content.begin(), str_content.end(), '{');
 	if (serveur_count <= 0)

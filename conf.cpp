@@ -1,40 +1,40 @@
 #include "library.hpp"
 #include "conf.hpp"
 
-Conf::Conf() : _methods() {
-};
+Conf::Conf() {
+}
 
 Conf::Conf(Conf &src)
 {
 	*this = src; //Copier les variables
-};
+}
 
-Conf::~Conf() {};
+Conf::~Conf() {}
 
 void Conf::SetErrorPages(std::string dir) {
 	_error_pages = directory_parser(dir);
-};
+}
 
 
 void Conf::SetServerContent(std::string dir) {
 	_html_content = directory_parser(dir);
-};
+}
 
 void Conf::SetServerName(std::string name)  {
 	_name = name;
-};
+}
 
-void Conf::SetBodySize(int size) {
+void Conf::SetBodySize(unsigned int size) {
 	_body = size;
-};
+}
 
 
-void Conf::SetAddress(int addr) {
+void Conf::SetAddress(unsigned int addr) {
 	_address = addr;
-};
-void Conf::SetPort(int port) {
+}
+void Conf::SetPort(unsigned int port) {
 	_port = port;
-};
+}
 
 void Conf::SetMethods(std::string methods) {
 	if (methods.find("GET") != std::string::npos)
@@ -68,7 +68,7 @@ Conf &Conf::operator=(Conf &src){
 	this->_error_pages = directory_parser(_err_path);
 	this->_html_content = directory_parser(_html_path);
 	return (*this);
-};
+}
 
 std::string Conf::GetErrorPage(std::string page){
 	std::vector<std::string>::iterator	it_b;
@@ -93,11 +93,39 @@ std::string Conf::GetErrorPage(std::string page){
 		// Generate page
 	}
 	return (page_content);
-};
+}
 
-	std::string					GetErrorPage(std::string page);
-	std::string					GetDirContent(std::string page);
-	int							GetPort();
-	bool						GetMethod(std::string method);
-	int							GetAddress();
-	int							GetBodySize();
+std::string Conf::GetDirContent(std::string page){
+	std::vector<std::string>::iterator	it_b;
+	std::vector<std::string>::iterator	it_e;
+	std::string							path;
+	std::string							page_content;
+
+	path = this->_html_path + page;
+	it_b = this->_html_content->begin();
+	it_e = this->_html_content->end();
+	page_content = "";
+	while (it_b != it_e)
+	{
+		if ((*it_b).find(path) != std::string::npos)
+			break ;
+		it_b++;
+	}
+	if (it_b != it_e)
+		page_content = readfileContent(*it_b);
+	else if (it_b == it_e && (extension_check(page.c_str()) == 0 || extension_check(page.c_str()) == 4))
+		page_content = GetErrorPage("404.html");
+	return (page_content);
+}
+
+unsigned int Conf::GetPort() {
+	return(_port);
+}
+
+unsigned int Conf::GetAddress() {
+	return (_address);
+}
+
+unsigned int Conf::GetBodySize() {
+	return (_body);
+}

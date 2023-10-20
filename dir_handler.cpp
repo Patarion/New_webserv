@@ -1,22 +1,22 @@
 #include "library.hpp"
 
+static const char *extensions_tab[9] = {".html", ".css", ".jpeg", ".png", ".php", ".gif", ".ico", ".js", NULL};
+
 int extension_check(const char *path)
 {
-	int i;
 	int	j;
+	std::string	str_path;
+	std::string	str_extension;
 
-	i = strlen(path) - 1;
+	str_path = path;
+	str_extension = "";
 	j = 0;
-	while (path[i] != '.' && path[i] != '/' && i > -1)
-		i--;
-	if (path[i] == '.')
+	while (extensions_tab[j])
 	{
-		while (extensions_tab[j])
-		{
-			if (strncmp(&path[i], extensions_tab[j], strlen(extensions_tab[j])) == 0)
+		str_extension = extensions_tab[j];
+		if (str_path.find(str_extension) != std::string::npos && str_path.find(str_extension) == (str_path.length() - str_extension.length()))
 				return (j);
-			j++;
-		}
+		j++;
 	}
 	return (j);
 }

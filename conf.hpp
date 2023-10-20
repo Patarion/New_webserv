@@ -13,23 +13,23 @@ class Conf {
 	void						SetErrorPages(std::string dir);
 	void						SetServerContent(std::string dir);
 	void						SetServerName(std::string name);
-	void						SetBodySize(int size);
-	void						SetAddress(int addr);
-	void						SetPort(int port);
+	void						SetBodySize(unsigned int size);
+	void						SetAddress(unsigned int addr);
+	void						SetPort(unsigned int port);
 	void						SetMethods(std::string methods);
 	std::string					GetErrorPage(std::string page);
 	std::string					GetDirContent(std::string file);
-	int							GetPort();
+	unsigned int				GetPort();
 	bool						GetMethod(std::string method);
-	int							GetAddress();
-	int							GetBodySize();
+	unsigned int				GetAddress();
+	unsigned int				GetBodySize();
 	short int					GetMethods();
 
 	private :
 	std::string					_name;
 	unsigned int				_body;
-	int							_port;
-	int							_address;
+	unsigned int				_port;
+	unsigned int				_address;
 	bool						_get;
 	bool						_post;
 	bool						_delete;
