@@ -1,5 +1,5 @@
-#include "library.hpp"
-#include "conf.hpp"
+#include "../inc/library.hpp"
+#include "../inc/conf.hpp"
 
 Conf::Conf() {
 }
@@ -87,7 +87,7 @@ std::string Conf::GetErrorPage(std::string page){
 		it_b++;
 	}
 	if (it_b != it_e)
-		page_content = readfileContent(*it_b);
+		page_content = readfileContent(*it_b, this->_env);
 	else if (it_b == it_e || page_content == "")
 	{
 		// Generate page
@@ -112,7 +112,7 @@ std::string Conf::GetDirContent(std::string page){
 		it_b++;
 	}
 	if (it_b != it_e)
-		page_content = readfileContent(*it_b);
+		page_content = readfileContent(*it_b, this->_env);
 	else if (it_b == it_e && (extension_check(page.c_str()) == 0 || extension_check(page.c_str()) == 4))
 		page_content = GetErrorPage("404.html");
 	return (page_content);

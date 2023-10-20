@@ -24,6 +24,7 @@ class Conf {
 	unsigned int				GetAddress();
 	unsigned int				GetBodySize();
 	short int					GetMethods();
+	char						**GetEnv();
 
 	private :
 	std::string					_name;
@@ -37,6 +38,7 @@ class Conf {
 	std::string					_html_path;
 	std::vector<std::string>	*_error_pages;
 	std::vector<std::string>	*_html_content;
+	char						**_env;
 
 };
 

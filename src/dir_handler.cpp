@@ -1,4 +1,4 @@
-#include "library.hpp"
+#include "../inc/library.hpp"
 
 static const char *extensions_tab[9] = {".html", ".css", ".jpeg", ".png", ".php", ".gif", ".ico", ".js", NULL};
 
@@ -48,6 +48,23 @@ static void sub_directories_handler(DIR *dir, std::string path, std::vector<std:
 	}
 	closedir(dir);
 }
+
+static void Show_DirContent(std::vector<std::string> dir_content)
+{
+	std::vector<std::string>::iterator	it_b;
+	std::vector<std::string>::iterator	it_e;
+
+	it_b = dir_content.begin();
+	it_e = dir_content.end();
+
+	std::cout << "Voici le contenu du dossier" << std::endl;
+	while (it_b != it_e)
+	{
+		std::cout << *it_b << std::endl;
+		it_b++;
+	}
+}
+
 //La fonction vérifie le contenu du dossier du server, si un p'tit malin fait un CHMOD du dossier c'est couvert :P
 std::vector<std::string> *directory_parser(std::string dir)
 {
@@ -56,7 +73,6 @@ std::vector<std::string> *directory_parser(std::string dir)
 	DIR	*directory;
 	DIR	*tmpdir;
 	struct dirent *folder;
-	// struct dirent *tmpfolder;
 
 	directory = opendir(dir.c_str()); // changer pour les dossiers émis dans le fichier de config
 	path = "";
@@ -85,7 +101,7 @@ std::vector<std::string> *directory_parser(std::string dir)
 		path = "";
 		folder = readdir(directory);
 	}
-//    showFile(*path_list);
+    Show_DirContent(*path_list);
 	closedir(directory);
 	return (path_list);
 }
