@@ -79,8 +79,8 @@ std::vector<std::string> *directory_parser(std::string dir)
 	path_list = new std::vector<std::string>;
 	if (directory == NULL)
 	{
-		std::cerr << "Le dossier source n'a pu être ouvert. CHMOD S'TI" << std::endl;
-		exit (EXIT_FAILURE);
+		std::cerr << "Le dossier source n'a pu être ouvert (CHMOD S'TI) ou est inexistant!" << std::endl;
+		return (path_list);
 	}
 	folder = readdir(directory);
 	// Une fois le dossier où on est situé est ouvert, on analyse où les fichiers utiles au site web sont situé pour conserver

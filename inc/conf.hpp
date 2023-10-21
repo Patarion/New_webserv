@@ -10,7 +10,7 @@ class Conf {
 	Conf(Conf &src);
 	~Conf();
 	Conf &operator=(Conf &);
-	void						SetErrorPages(std::string dir);
+	void						SetErrorPages(std::vector<std::string> *src);
 	void						SetServerContent(std::string dir);
 	void						SetServerName(std::string name);
 	void						SetBodySize(unsigned int size);
@@ -20,10 +20,11 @@ class Conf {
 	std::string					GetErrorPage(std::string page);
 	std::string					GetDirContent(std::string file);
 	unsigned int				GetPort();
-	bool						GetMethod(std::string method);
 	unsigned int				GetAddress();
 	unsigned int				GetBodySize();
-	short int					GetMethods();
+	bool						GetGet();
+	bool						GetPost();
+	bool						GetDelete();
 	char						**GetEnv();
 
 	private :

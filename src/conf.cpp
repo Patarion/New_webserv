@@ -9,12 +9,16 @@ Conf::Conf(Conf &src)
 	*this = src; //Copier les variables
 }
 
-Conf::~Conf() {}
-
-void Conf::SetErrorPages(std::string dir) {
-	_error_pages = directory_parser(dir);
+Conf::~Conf() {
+	if (_html_content->size() > 0)
+		delete _html_content;
+	if (_error_pages->size() > 0)
+		delete _error_pages;
 }
 
+void Conf::SetErrorPages(std::vector<std::string> *src) {
+	_error_pages = src;
+}
 
 void Conf::SetServerContent(std::string dir) {
 	_html_content = directory_parser(dir);
@@ -43,16 +47,6 @@ void Conf::SetMethods(std::string methods) {
 		_post = true;
 	if (methods.find("DELETE") != std::string::npos)
 		_delete = true;
-}
-
-short int Conf::GetMethods() {
-	short int methods;
-
-	methods = 0;
-	methods |= _get << 2;
-	methods |= _post << 1;
-	methods |= _delete;
-	return (methods);
 }
 
 Conf &Conf::operator=(Conf &src){
@@ -128,4 +122,16 @@ unsigned int Conf::GetAddress() {
 
 unsigned int Conf::GetBodySize() {
 	return (_body);
+}
+
+bool		Conf::GetGet() {
+	return (_get);
+}
+
+bool		Conf::GetPost() {
+	return (_post);
+}
+
+bool		Conf::GetDelete() {
+	return (_delete);
 }

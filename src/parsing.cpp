@@ -1,7 +1,7 @@
 #include "../inc/library.hpp"
 #include "../inc/conf.hpp"
 
-static const char *conf_var[6] = {"serveur_name", "client_body", "listen", "error_page", "allow_methods", NULL};
+static const char *conf_var[6] = {"server_name", "client_body", "listen", "error_page", "allow_methods", NULL};
 
 std::string check_args(int argc, char **argv, char **env)
 {
@@ -38,30 +38,73 @@ std::string check_args(int argc, char **argv, char **env)
 
 static bool setServeurInfo(std::string line, Conf *serveur, int i)
 {
+	for (int j = 0; conf_var[j] != NULL ; j++)
+	{
+		std::string	cpy_conf_var = conf_var[j];
+		if (line.find(cpy_conf_var) != std::string::npos)
+			return  (false);
+	}
 	std::cout << "Information valide trouvée pour le serveur" << std::endl;
 	switch (i)
 	{
 		case 0:
 		{
-//			serveur->SetServerName(line);
+			serveur->SetServerName(line);
 			return (true);
 		}
 		case 1:
-		{	
-			return (true);
+		{
+			long int body;
+			try {
+				body = std::stol(line);
+			}
+			catch (std::exception &e)
+			{
+				return (false);
+			}
+			if (body > 0)
+			{
+				serveur->SetBodySize(static_cast<int>(body));
+				return (true);
+			}
+			return (false);
 		}
 		case 2:
 		{
-			return (true);
-			break ;
+			long int port;
+
+			port = 0;
+			try{
+				port = std::stol(line);
+			}
+			catch (std::exception &e)
+			{
+				return (false);
+			}
+			if (port > 0 && port != 80 && port <= 65353)
+			{
+				serveur->SetPort(static_cast<int>(port));
+				return (true);
+			}
+			return (false);
 		}
 		case 3:
 		{
+			std::vector<std::string>	*dir_content;
+			dir_content = directory_parser(line);
+			if (dir_content->size() <= 0)
+			{
+				delete dir_content;
+				return (false);
+			}
+			serveur->SetErrorPages(dir_content);
 			return (true);
-			break ;
 		}
 		case 4:
 		{
+			serveur->SetMethods(line);
+			if (serveur->GetGet() == false)
+				return (false);
 			return (true);
 		}
 		default:
@@ -82,12 +125,12 @@ static bool setServeur(std::string data, Conf *serveur)
 	line = "";
 	cpy_var_name = "";
 	cycle = std::count(data.begin(), data.end(), '\n');
-	while (cycle >= 0)
+	while (cycle > 0)
 	{
 		for (int i = 0; conf_var[i] != NULL ; i++)
 		{
 			cpy_var_name = conf_var[i];
-			if (data.find(cpy_var_name) != std::string::npos)
+			if (data.find(cpy_var_name) != std::string::npos && data.find(cpy_var_name) == 0)
 			{
 				if (treated[i] == false)
 				{
@@ -97,13 +140,12 @@ static bool setServeur(std::string data, Conf *serveur)
 					if (setServeurInfo(line, serveur, i) == false)
 						return (false);
 				}
+				data = &data[data.find_first_of('\n') + 1];
 				break ;
 			}
 		}
 		cycle--;
 	}
-	if (line.length() > 0)
-		serveur->SetServerName(line);
 	return (true);
 }
 
