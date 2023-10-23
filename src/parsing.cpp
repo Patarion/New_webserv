@@ -191,4 +191,5 @@ int main (int argc, char **argv, char **env)
 	if (serveur_count <= 0)
 		exit (EXIT_FAILURE);
 	parse_file(str_content, serveur_count, servers, env);
+	servers_routine(servers, env);
 }

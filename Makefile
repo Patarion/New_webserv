@@ -10,6 +10,9 @@ SRCS = 	src/conf.cpp\
 		src/utils.cpp\
 		src/CGI.cpp\
 		src/setupserver.cpp\
+		src/Get.cpp\
+		src/Post.cpp\
+		src/error.cpp\
 
 
 OBJS = $(SRCS:.c=.o)

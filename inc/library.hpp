@@ -31,5 +31,15 @@ std::string					CGI_Handler(std::string file, char **env);
 bool						keepsomeSpace(unsigned char c);
 void						clearservers(std::map<int, Conf *> *servers, Conf *conf_serv);
 bool						connectServer(std::map<int, Conf *> *servers, Conf *conf_serv);
+std::string					get_handler(std::vector<char> r_client, std::vector<std::string> *content, char **env);
+std::string					post_handler(std::vector<char> r_client, std::vector<std::string> *content, int fd, int ret_recv, char **env);
+std::string					error_handler(std::vector<std::string> *dir_content, std::string err_code, char **env);
+std::string					treat_calculate(std::vector<std::string> *dir_content, std::string data, char **env);
+std::string					treat_post(std::vector<char> content, const char *delim, std::vector<std::string> *dir_content, char **env);
+std::string 				get_response_handler(std::string file, std::string file_content);
+std::string					post_response(int code, std::vector<std::string> *dir_content, char **env);
+
+
+
 
 #endif
