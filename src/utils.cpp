@@ -21,17 +21,19 @@ bool keepsomeSpace(unsigned char c) {
 }
 
 void clearservers(std::map<int, Conf *> *servers, Conf *conf_serv) {
-		delete conf_serv;
-		std::map<int, Conf *>::iterator it_b;
-		std::map<int, Conf *>::iterator it_e;
 
-		it_b = servers->begin();
-		it_e = servers->end();
-		while (it_b != it_e)
-		{
-			delete it_b->second;
-			it_b++;
-		}
-		delete servers;
-		return ;
+	if (conf_serv != NULL)
+		delete conf_serv;
+	std::map<int, Conf *>::iterator it_b;
+	std::map<int, Conf *>::iterator it_e;
+	
+	it_b = servers->begin();
+	it_e = servers->end();
+	while (it_b != it_e)
+	{
+		delete it_b->second;
+		it_b++;
+	}
+	delete servers;
+	return ;
 }

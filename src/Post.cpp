@@ -67,7 +67,7 @@ static std::vector<char> check_transmission(std::vector<char> r_client, std::str
 	return (r_client);
 }
 
-std::string post_handler(std::vector<char> r_client, std::vector<std::string> *content, int fd, int ret_recv, char **env) // À voir, mais je risque d'avoir de besoin de l'URL de la page pour append les infos du site web
+std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int ret_recv, char **env) // À voir, mais je risque d'avoir de besoin de l'URL de la page pour append les infos du site web
 {
 	std::ostringstream	r_post;
 	std::string			data;
@@ -85,15 +85,14 @@ std::string post_handler(std::vector<char> r_client, std::vector<std::string> *c
 		it_b++;
 	}
 	std::cout << str_client << std::endl;
-	if (str_client.find("Content-Type: application/x-www-form-urlencoded; ") != std::string::npos\
-		|| str_client.find("Content-Type: application/x-www-form-urlencoded"))
+	if (str_client.find("Content-Type: application/x-www-form-urlencoded; ") != std::string::npos)
 	{
 		pos = str_client.find("\r\n\r\n");
 		data = str_client.substr(pos + 4, std::string::npos);
 		std::cout << data << std::endl;
 		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos &&\
 			data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos)
-			return (treat_calculate(content, data, env));
+			return (treat_calculate(server->GetDirContent(), data, env));
 	}
 	else if (str_client.find("Content-Type: multipart/form-data;") != std::string::npos)
 	{
@@ -102,12 +101,12 @@ std::string post_handler(std::vector<char> r_client, std::vector<std::string> *c
 		pos = str_client.find("boundary=") + 9;
 		delim = double_quotes_trim(str_client, pos);
 		r_client = check_transmission(r_client, delim, fd, ret_recv);
-		data = treat_post(r_client, delim.c_str(), content, env);
+		data = treat_post(r_client, delim.c_str(), server, env);
 	}
 	return (data);
 }
 
-std::string	treat_post(std::vector<char> content, const char *delim, std::vector<std::string> *dir_content, char **env)
+std::string	treat_post(std::vector<char> content, const char *delim, Conf *server, char **env)
 {
 	int	i;
 	std::string data_name;
@@ -171,7 +170,7 @@ std::string	treat_post(std::vector<char> content, const char *delim, std::vector
 			{
 				std::cout << "Le fichier suivant : " << file_name << " n'a pu être crée" << std::endl;
 				std::cout << "Veuillez retransférer le formulaire ou le fichier" << std::endl;
-				return (post_response(500, dir_content, env));
+				return (post_response(500, server->GetErrContent(), env));
 			}
 			out_file << data;
 			out_file.close();
@@ -183,7 +182,7 @@ std::string	treat_post(std::vector<char> content, const char *delim, std::vector
 			break ;
 		}
 	}
-	return (post_response(200, dir_content, env));
+	return (post_response(200, server->GetDirContent(), env));
 }
 
 std::string	post_response(int code, std::vector<std::string> *dir_content, char **env)

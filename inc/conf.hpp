@@ -19,7 +19,7 @@ class Conf {
 	void						SetMethods(std::string methods);
 	void						SetAddrInfo();
 	std::string					GetErrorPage(std::string page);
-	std::string					GetDirContent(std::string file);
+	std::string					GetDirPage(std::string file);
 	unsigned int				GetPort();
 	unsigned int				GetAddress();
 	unsigned int				GetBodySize();
@@ -29,6 +29,8 @@ class Conf {
 	char						**GetEnv();
 	std::string					GetServerName();
 	sockaddr_in					*GetAddrInfo();
+	std::vector<std::string>	*GetDirContent();
+	std::vector<std::string>	*GetErrContent();
 
 	private :
 	std::string					_name;

@@ -102,7 +102,7 @@ std::string Conf::GetErrorPage(std::string page){
 	return (page_content);
 }
 
-std::string Conf::GetDirContent(std::string page){
+std::string Conf::GetDirPage(std::string page){
 	std::vector<std::string>::iterator	it_b;
 	std::vector<std::string>::iterator	it_e;
 	std::string							path;
@@ -155,4 +155,12 @@ std::string	Conf::GetServerName() {
 
 sockaddr_in	*Conf::GetAddrInfo() {
 	return (&_addr_data);
+}
+
+std::vector<std::string>	*Conf::GetDirContent() {
+	return (_html_content);
+}
+
+std::vector<std::string>	*Conf::GetErrContent() {
+	return (_error_pages);
 }

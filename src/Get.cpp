@@ -1,7 +1,7 @@
 #include "../inc/conf.hpp"
 #include "../inc/library.hpp"
 
-std::string 	get_handler(std::vector<char> r_client, std::vector<std::string> *content, char **env)
+std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 {
 	std::vector<std::string>::iterator	it_b;
 	std::vector<std::string>::iterator	it_e;
@@ -18,8 +18,8 @@ std::string 	get_handler(std::vector<char> r_client, std::vector<std::string> *c
 	path = "";
 	str_client = "";
 	str_client.append(r_client.data());		
-	it_b = content->begin();
-	it_e = content->end();
+	it_b = server->GetDirContent()->begin();
+	it_e = server->GetDirContent()->end();
 	
 	file_to_find = str_client.substr(4, str_client.find(" HTTP/1.1") - 4);
 	if (str_client.find("GET / HTTP/1.1") != std::string::npos)
@@ -56,7 +56,7 @@ std::string 	get_handler(std::vector<char> r_client, std::vector<std::string> *c
 			stream_request << get_response_handler(request, r_file);
 		}
 		else if (it_b == it_e)
-			stream_request << error_handler(content, "404", env);
+			stream_request << error_handler(server->GetErrContent(), "404", env);
 	}
 	return (stream_request.str());
 }
