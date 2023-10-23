@@ -2,6 +2,7 @@
 #include "../inc/conf.hpp"
 
 Conf::Conf() {
+	
 }
 
 Conf::Conf(Conf &src)
@@ -49,6 +50,14 @@ void Conf::SetMethods(std::string methods) {
 		_delete = true;
 }
 
+void Conf::SetAddrInfo() {
+	memset((void *) &_addr_data, 0, sizeof(_addr_data));
+	_addr_data.sin_family = AF_INET;
+	_addr_data.sin_addr.s_addr = htonl(2130706433); //127.0.0.1 addresse locale
+	_addr_data.sin_port = htons(this->_port);
+
+}
+
 Conf &Conf::operator=(Conf &src){
 	this->_name = src._name;
 	this->_body = src._body;
@@ -59,6 +68,10 @@ Conf &Conf::operator=(Conf &src){
 	this->_delete = src._delete;
 	this->_err_path = src._err_path;
 	this->_html_path = src._html_path;
+	if (this->_error_pages->size() > 0)
+		delete this->_error_pages;
+	if (this->_html_content->size() > 0)
+		delete this->_html_content;
 	this->_error_pages = directory_parser(_err_path);
 	this->_html_content = directory_parser(_html_path);
 	return (*this);
@@ -134,4 +147,12 @@ bool		Conf::GetPost() {
 
 bool		Conf::GetDelete() {
 	return (_delete);
+}
+
+std::string	Conf::GetServerName() {
+	return (_name);
+}
+
+sockaddr_in	*Conf::GetAddrInfo() {
+	return (&_addr_data);
 }

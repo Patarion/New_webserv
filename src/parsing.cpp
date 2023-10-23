@@ -149,45 +149,27 @@ static bool setServeur(std::string data, Conf *serveur)
 	return (true);
 }
 
-	// server_name patate
-	// client_body 100
-	// listen localhost:8000
-	// error_page html/error/
-	// allow_methods GET POST DELETE
-
-void parse_file(std::string content, int serveur_count, std::map<int, Conf *> servers, char **env)
+void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *servers, char **env)
 {
 	static int	nb_server;
-	Conf		*conf_serv = new Conf();
 	std::string	server_data;
-	
+
 	if (nb_server >= serveur_count || content.find("server") != 0 || content.find("server") == std::string::npos\
 		|| content == "")
-	{
-		delete conf_serv;
 		return ;
-	}
 	server_data = content.substr(content.find("{") + 1 , (content.find("}") - content.find("{") - 1));
 	std::cout << "Je parse un serveur" << std::endl;
 	std::cout << server_data;
 	server_data.erase(std::remove_if(server_data.begin(), server_data.end(), keepsomeSpace), server_data.end());
 	if (server_data[0] == '\n')
 		server_data = &server_data[1];
-	if (setServeur(server_data, conf_serv) == false)
-	{
-		delete conf_serv;
-		std::map<int, Conf *>::iterator it_b;
-		std::map<int, Conf *>::iterator it_e;
 
-		it_b = servers.begin();
-		it_e = servers.end();
-		while (it_b != it_e)
-		{
-			delete it_b->second;
-			it_b++;
-		}
-		return ;
-	}
+	Conf		*conf_serv = new Conf();
+
+	if (setServeur(server_data, conf_serv) == false)
+		clearservers(servers, conf_serv);
+	if (connectServer(servers, conf_serv) == false)
+		clearservers(servers, conf_serv);
 	nb_server++;
 	content = &content[content.find("}") + 2];
 	parse_file(content, serveur_count, servers, env);
@@ -196,7 +178,7 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> se
 int main (int argc, char **argv, char **env)
 {
 	std::string				str_content;
-	std::map<int, Conf*>	servers;
+	std::map<int, Conf*>	*servers = new std::map<int, Conf *>;
 	int						serveur_count;
 
 	str_content = check_args(argc, argv, env);

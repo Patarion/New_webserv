@@ -20,11 +20,16 @@
 # include <map>
 # include <cctype>
 # include <algorithm>
+# include "../inc/conf.hpp"
+
+class Conf;
 
 std::vector<std::string>    *directory_parser(std::string dir);
 std::string                 readfileContent(std::string path, char **env);
 int                         extension_check(const char *path);
 std::string					CGI_Handler(std::string file, char **env);
 bool						keepsomeSpace(unsigned char c);
+void						clearservers(std::map<int, Conf *> *servers, Conf *conf_serv);
+bool						connectServer(std::map<int, Conf *> *servers, Conf *conf_serv);
 
 #endif

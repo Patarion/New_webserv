@@ -17,6 +17,7 @@ class Conf {
 	void						SetAddress(unsigned int addr);
 	void						SetPort(unsigned int port);
 	void						SetMethods(std::string methods);
+	void						SetAddrInfo();
 	std::string					GetErrorPage(std::string page);
 	std::string					GetDirContent(std::string file);
 	unsigned int				GetPort();
@@ -26,6 +27,8 @@ class Conf {
 	bool						GetPost();
 	bool						GetDelete();
 	char						**GetEnv();
+	std::string					GetServerName();
+	sockaddr_in					*GetAddrInfo();
 
 	private :
 	std::string					_name;
@@ -40,7 +43,7 @@ class Conf {
 	std::vector<std::string>	*_error_pages;
 	std::vector<std::string>	*_html_content;
 	char						**_env;
-
+	struct sockaddr_in			_addr_data;
 };
 
 #endif

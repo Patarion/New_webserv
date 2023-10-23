@@ -9,10 +9,12 @@ SRCS = 	src/conf.cpp\
 		src/parsing.cpp\
 		src/utils.cpp\
 		src/CGI.cpp\
+		src/setupserver.cpp\
+
 
 OBJS = $(SRCS:.c=.o)
 
-CC = g++ -g
+CC = g++ -g --std=c++98
 CFLAGS = -Wall -Werror -Wextra
 NORM = norminette
 RM = rm -rf
