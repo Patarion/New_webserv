@@ -146,6 +146,7 @@ static bool setServeur(std::string data, Conf *serveur)
 		}
 		cycle--;
 	}
+	serveur->SetServerContent("Website/html/");
 	return (true);
 }
 
@@ -165,7 +166,6 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 		server_data = &server_data[1];
 
 	Conf		*conf_serv = new Conf();
-
 	if (setServeur(server_data, conf_serv) == false)
 		clearservers(servers, conf_serv);
 	if (connectServer(servers, conf_serv) == false)
@@ -173,24 +173,4 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	nb_server++;
 	content = &content[content.find("}") + 2];
 	parse_file(content, serveur_count, servers, env);
-}
-
-int main (int argc, char **argv, char **env)
-{
-	std::string				str_content;
-	std::map<int, Conf*>	*servers = new std::map<int, Conf *>;
-	int						serveur_count;
-
-	str_content = check_args(argc, argv, env);
-	serveur_count = 0;
-	if (str_content.length() <= 0)
-		exit (EXIT_FAILURE);
-
-	if (std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}'))
-		serveur_count = std::count(str_content.begin(), str_content.end(), '{');
-	if (serveur_count <= 0)
-		exit (EXIT_FAILURE);
-	parse_file(str_content, serveur_count, servers, env);
-	servers_routine(servers, env);
-	clearservers(servers, NULL);
 }

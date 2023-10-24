@@ -2,7 +2,8 @@
 #include "../inc/conf.hpp"
 
 Conf::Conf() {
-	
+	_html_content = NULL;
+	_error_pages = NULL;
 }
 
 Conf::Conf(Conf &src)
@@ -11,9 +12,9 @@ Conf::Conf(Conf &src)
 }
 
 Conf::~Conf() {
-	if (_html_content->size() > 0)
+	if (_html_content != NULL && _html_content->size() > 0)
 		delete _html_content;
-	if (_error_pages->size() > 0)
+	if (_error_pages != NULL && _error_pages->size() > 0)
 		delete _error_pages;
 }
 

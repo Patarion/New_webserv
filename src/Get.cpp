@@ -116,7 +116,7 @@ static std::string calculate_response(std::string result)
 	return (response.str());
 }
 
-static std::string calculate_form(long double num1, long double num2, std::vector<std::string> *dir_content, std::string data, char **env)
+static std::string calculate_form(long double num1, long double num2, std::vector<std::string> *err_content, std::string data, char **env)
 {
 	std::ostringstream	str_stream;
 	std::string 		result;
@@ -131,7 +131,7 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 	else if (data.find("&operator=divide") != std::string::npos)
 	{
 		if (num2 == 0)
-			return (error_handler(dir_content, "418", env));
+			return (error_handler(err_content, "418", env));
 		num1 /= num2;
 	}
 	str_stream << num1;
@@ -139,7 +139,7 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 	return (calculate_response(result));
 }
 
-std::string treat_calculate(std::vector<std::string> *dir_content, std::string data, char **env)
+std::string treat_calculate(std::vector<std::string>  *err_content, std::string data, char **env)
 {
 	long double		num1;
 	long double		num2;
@@ -159,7 +159,7 @@ std::string treat_calculate(std::vector<std::string> *dir_content, std::string d
 	}
 	catch (std::invalid_argument)
 	{
-		return (error_handler(dir_content, "400", env));
+		return (error_handler(err_content, "400", env));
 	}
 	str_nbr = data.substr(data.find("&num2=") + 6, data.find("&submit=") - (data.find("&num2=") + 6));
 	try {
@@ -167,8 +167,8 @@ std::string treat_calculate(std::vector<std::string> *dir_content, std::string d
 	}
 	catch (std::invalid_argument)
 	{
-		return (error_handler(dir_content, "400", env));
+		return (error_handler(err_content, "400", env));
 	}
-	result = calculate_form(num1, num2, dir_content, data, env);
+	result = calculate_form(num1, num2, err_content, data, env);
 	return(result);
 }

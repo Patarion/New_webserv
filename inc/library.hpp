@@ -16,11 +16,14 @@
 # include <sys/time.h>
 # include <sys/wait.h>
 # include <sys/select.h>
+# include <fcntl.h>
 # include <vector>
 # include <map>
 # include <cctype>
 # include <algorithm>
 # include "../inc/conf.hpp"
+
+# define MAX_BUFF_SIZE 2000000
 
 class Conf;
 
@@ -34,11 +37,15 @@ bool						connectServer(std::map<int, Conf *> *servers, Conf *conf_serv);
 std::string					get_handler(std::vector<char> r_client, Conf *server, char **env);
 std::string					post_handler(std::vector<char> r_client, Conf *server, int fd, int ret_recv, char **env);
 std::string					error_handler(std::vector<std::string> *dir_content, std::string err_code, char **env);
-std::string					treat_calculate(std::vector<std::string> *dir_content, std::string data, char **env);
+std::string					treat_calculate(std::vector<std::string> *err_content,std::string data, char **env);
 std::string					treat_post(std::vector<char> content, const char *delim, Conf *server, char **env);
 std::string					post_response(int code, std::vector<std::string> *dir_content, char **env);
 std::string					delete_handler(std::vector<char> r_client, Conf *server);
 std::string					request_handler(const std::vector<char> r_client, Conf *server, char **env, int fd, int ret_recv);
 std::string					get_response_handler(std::string file, std::string file_content);
+std::string					check_args(int argc, char **argv, char **env);
+void						parse_file(std::string content, int serveur_count, std::map<int, Conf *> *servers, char **env);
+
+
 
 #endif

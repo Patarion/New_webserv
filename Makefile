@@ -13,6 +13,7 @@ SRCS = 	src/conf.cpp\
 		src/Get.cpp\
 		src/Post.cpp\
 		src/error.cpp\
+		src/webserv.cpp\
 
 
 OBJS = $(SRCS:.c=.o)

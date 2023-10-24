@@ -92,7 +92,7 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		std::cout << data << std::endl;
 		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos &&\
 			data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos)
-			return (treat_calculate(server->GetDirContent(), data, env));
+			return (treat_calculate(server->GetErrContent(), data, env));
 	}
 	else if (str_client.find("Content-Type: multipart/form-data;") != std::string::npos)
 	{
