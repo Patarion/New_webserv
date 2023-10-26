@@ -113,6 +113,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 								r_client.clear();
 								r_client.resize(MAX_BUFF_SIZE);
 								response = "";
+								r_recv = 0;
 								break ;
 						}
 					}

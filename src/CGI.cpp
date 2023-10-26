@@ -63,7 +63,6 @@ std::string 	CGI_Handler(std::string file, char **env)
 
 std::string request_handler(const std::vector<char> r_client, Conf *server, char **env, int fd, int ret_recv)
 {
-    std::vector<std::string> matchingStrings;
 	std::string	r_request;
 	std::string cpy_client;
 	r_request = "";
