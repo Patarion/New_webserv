@@ -99,8 +99,16 @@ bool Conf::CheckFD(int fd) {
 	return (false);
 }
 
-void Conf::RemoveFD(std::vector<int>::iterator fd) {
-	this->_handled_fds->erase(fd);
+void Conf::RemoveFD(int fd) {
+	for (std::vector<int>::iterator it_b = this->_handled_fds->begin(); it_b != this->_handled_fds->end() ; it_b++)
+	{
+		if (*it_b == fd)
+		{
+			this->_handled_fds->erase(it_b);
+			break ;
+		}
+	}
+
 }
 
 Conf &Conf::operator=(Conf &src){

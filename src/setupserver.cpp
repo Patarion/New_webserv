@@ -5,7 +5,7 @@ bool connectServer(std::map<int, Conf*> *servers, Conf *serv) {
 	int fd_serv;
 
 	fd_serv = socket(AF_INET, SOCK_STREAM, 0);
-	if (fd_serv < 0)
+	if (fd_serv <= 0)
 		return (false);
 	fcntl(fd_serv, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 	serv->SetAddrInfo();

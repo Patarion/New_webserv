@@ -9,25 +9,22 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 	int								cycle;
 	int								r_select;
 	int								max_fd;
-	std::map<int, Conf*>::iterator	it_b = servers->begin();
-	std::map<int, Conf*>::iterator	it_e = servers->end();
-	std::vector<int>				ready;
+	std::vector<int>				*ready = new std::vector<int>;
+	std::vector<int>				*client_fds = new std::vector<int>;
 	std::string						response;
-	std::vector<int>				client_fds;
 
 	refresh_time.tv_sec = 10;
 	refresh_time.tv_usec = 0;
 	max_fd = 0;
 	FD_ZERO(&write_fds);
 	FD_ZERO(&read_fds);
-	while (it_b != it_e)
+	for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 	{
 		FD_SET(it_b->first, &read_fds);
 		FD_SET(it_b->first, &write_fds);
-		ready.push_back(it_b->first);
+		ready->push_back(it_b->first);
 		if (max_fd < it_b->first)
 			max_fd = it_b->first;
-		it_b++;
 	}
 	while (1)
 	{
@@ -42,19 +39,18 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 
 		FD_ZERO(&cpy_read);
 		FD_ZERO(&cpy_write);
-		FD_COPY(&cpy_read, &read_fds);
-		FD_COPY(&write_fds,  &write_fds);
+		FD_COPY(&read_fds, &cpy_read);
+		FD_COPY(&write_fds,  &cpy_write);
 		while (r_select == 0)
 		{
-			r_select = select(max_fd + 1, &cpy_write, &cpy_read, NULL, &refresh_time);
+			r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
 			if (r_select == 0 && cycle-- > 0);
 			else if (r_select < 0 || (r_select == 0 && cycle <= 0))
 				break ;
 		}
 		if (r_select > 0)
 		{
-			it_b = servers->begin();
-			while (it_b != it_e)
+			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 			{
 				int			client_socket;
 				sockaddr_in	client_address;
@@ -68,65 +64,69 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					{
 						fcntl(client_socket, F_SETFL, O_NONBLOCK);
 						FD_SET(client_socket, &read_fds);
-						FD_SET(client_socket, &write_fds);
-						client_fds.push_back(client_socket);
+						client_fds->push_back(client_socket);
 						it_b->second->AddHandledFDs(client_socket);
 						if (client_socket > max_fd)
 							max_fd = client_socket;
 					}
 					break ;
 				}
-				it_b++;
 			}
-			for (std::vector<int>::iterator it_beg = client_fds.begin(); it_beg != client_fds.end(); it_beg++)
+			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 			{
 				if (FD_ISSET(*it_beg, &cpy_read))
 				{
 					r_recv = recv(*it_beg, r_client.data(), r_client.size(), 0 );
-					if (r_recv > 0)
+					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
 					{
-						ready.push_back(*it_beg);
+						ready->push_back(*it_beg);
 						FD_SET(*it_beg, &write_fds);
-						r_client.resize(r_recv);
 					}
 					else if (r_recv < 0)
 					{
+						FD_CLR(*it_beg, &read_fds);
 						FD_CLR(*it_beg, &write_fds);
-						client_fds.erase(it_beg);
+						client_fds->erase(it_beg);
+						for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
+							if (it_b->first == *it_beg)
+								it_b->second->RemoveFD(*it_beg);
 						break ;
 					}
+					if (r_recv > 0)
+						r_client.resize(r_recv);
 				}
 			}
-			for(std::vector<int>::iterator it_beg = ready.begin(); it_beg != ready.end(); it_beg++)
+			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
 				if (FD_ISSET(*it_beg, &cpy_write))
 				{
-					for (it_b = servers->begin(); it_b != it_e ; it_b++)
-						if (it_b->second->CheckFD(*it_beg) == true)
-							break ;
-					if (it_b != it_e)
+					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
-						response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
-						if (send(*it_beg, response.c_str(), response.size(), 0) == 0)
+						if (it_b->second->CheckFD(*it_beg) == true)
 						{
-							FD_CLR(*it_beg, &write_fds);
-							ready.erase(it_beg);
-							it_b->second->RemoveFD(it_beg);
+								response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
+								if (send(*it_beg, response.c_str(), response.size(), 0) == 0)
+								{
+									FD_CLR(*it_beg, &write_fds);
+									ready->erase(it_beg);
+								}
+								r_client.clear();
+								r_client.resize(MAX_BUFF_SIZE);
+								response = "";
+								break ;
 						}
-						r_client.clear();
-						r_client.resize(MAX_BUFF_SIZE);
-						response = "";
 					}
+					break ;
 				}
 			}
 		}
 		else if (r_select < 0)
 		{
-			for (std::vector<int>::iterator it_beg = client_fds.begin(); it_beg != client_fds.end(); it_beg++)
+			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 				close(*it_beg);
-			client_fds.clear();
-			ready.clear();
-			for (it_b = servers->begin(); it_b != servers->end(); it_b++)
+			client_fds->clear();
+			ready->clear();
+			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 				close(it_b->first);
 			break ;
 		}
@@ -141,6 +141,7 @@ int main (int argc, char **argv, char **env)
 
 	str_content = check_args(argc, argv, env);
 	serveur_count = 0;
+	servers->clear();
 	if (str_content.length() <= 0)
 		exit (EXIT_FAILURE);
 	if (std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}'))
@@ -148,6 +149,11 @@ int main (int argc, char **argv, char **env)
 	if (serveur_count <= 0)
 		exit (EXIT_FAILURE);
 	parse_file(str_content, serveur_count, servers, env);
-	servers_routine(servers, env);
-	clearservers(servers, NULL);
+	if (servers->size() > 0)
+	{
+		servers_routine(servers, env);
+		clearservers(servers, NULL);
+	}
+	else if (servers->size() == 0)
+		std::cout << "Une erreur est survenue lors du parsing" << std::endl;
 }

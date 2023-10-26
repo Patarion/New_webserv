@@ -146,7 +146,7 @@ static bool setServeur(std::string data, Conf *serveur)
 		}
 		cycle--;
 	}
-	serveur->SetServerContent("Website/html/");
+	serveur->SetServerContent("Website/");
 	return (true);
 }
 
@@ -155,8 +155,7 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	static int	nb_server;
 	std::string	server_data;
 
-	if (nb_server >= serveur_count || content.find("server") != 0 || content.find("server") == std::string::npos\
-		|| content == "")
+	if (nb_server >= serveur_count || content.find("server") == std::string::npos || servers == NULL)
 		return ;
 	server_data = content.substr(content.find("{") + 1 , (content.find("}") - content.find("{") - 1));
 	std::cout << "Je parse un serveur" << std::endl;
@@ -165,11 +164,13 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	if (server_data[0] == '\n')
 		server_data = &server_data[1];
 
-	Conf		*conf_serv = new Conf();
+	Conf	*conf_serv = new Conf();
+	if (conf_serv == NULL)
+		return clearservers(servers, NULL);
 	if (setServeur(server_data, conf_serv) == false)
-		clearservers(servers, conf_serv);
+		return clearservers(servers, conf_serv);
 	if (connectServer(servers, conf_serv) == false)
-		clearservers(servers, conf_serv);
+		return clearservers(servers, conf_serv);
 	nb_server++;
 	content = &content[content.find("}") + 2];
 	parse_file(content, serveur_count, servers, env);

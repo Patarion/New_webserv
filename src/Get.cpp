@@ -25,7 +25,7 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	if (str_client.find("GET / HTTP/1.1") != std::string::npos)
 	{
 	
-		r_file = readfileContent("html/index.html", env);
+		r_file = readfileContent("Website/html/index.html", env);
 		
 		stream_request << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n" <<\
 		"Content-Length: " << r_file.length() << "\r\n\r\n" << r_file;

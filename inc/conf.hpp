@@ -35,7 +35,7 @@ class Conf {
 	std::vector<std::string>	*GetErrContent();
 	std::vector<int>			*GetHandledFDs();
 	bool						CheckFD(int fd);
-	void						RemoveFD(std::vector<int>::iterator fd);
+	void						RemoveFD(int fd);
 
 	private :
 	std::string					_name;

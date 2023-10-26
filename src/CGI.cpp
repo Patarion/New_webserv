@@ -71,14 +71,15 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	cpy_client.append(r_client.data());
 
 	if (cpy_client.find("GET /") != std::string::npos)
-	{
-        std::cout << "TEST ID  Server --- Request Handling ...  \n" << std::endl;
 		r_request = get_handler(r_client, server, env);
-    }
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == true)
 		r_request = post_handler(r_client, server, fd, ret_recv, env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == true)
 		r_request = delete_handler(r_client, server);
+	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == false)
+		r_request = error_handler(server->GetErrContent(), "403", env);
+	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == false)
+		r_request = error_handler(server->GetErrContent(), "403", env);
 	return (r_request);
 }
 

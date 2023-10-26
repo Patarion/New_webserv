@@ -31,6 +31,11 @@ std::string error_handler(std::vector<std::string> *dir_content, std::string err
 	std::string 						r_file;
 	std::string							path;
 
+	if (dir_content == NULL || dir_content->size() == 0)
+	{
+		response << error_gen(std::stoi(err_code));
+		return (response.str());
+	}
 	r_file = "";
 	path = "";
 	it_b = dir_content->begin();

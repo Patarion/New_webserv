@@ -35,6 +35,7 @@ void clearservers(std::map<int, Conf *> *servers, Conf *conf_serv) {
 		delete it_b->second;
 		it_b++;
 	}
-	delete servers;
+	servers->clear();
+	servers = NULL;
 	return ;
 }
