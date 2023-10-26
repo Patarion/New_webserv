@@ -4,6 +4,7 @@
 Conf::Conf() {
 	_html_content = NULL;
 	_error_pages = NULL;
+	_handled_fds = NULL;
 }
 
 Conf::Conf(Conf &src)
@@ -16,6 +17,12 @@ Conf::~Conf() {
 		delete _html_content;
 	if (_error_pages != NULL && _error_pages->size() > 0)
 		delete _error_pages;
+	if (_handled_fds != NULL && _handled_fds->size() > 0)
+		delete _handled_fds;
+}
+
+void Conf::InitHandledFDs() {
+	_handled_fds = new std::vector<int>;
 }
 
 void Conf::SetErrorPages(std::vector<std::string> *src) {
@@ -59,6 +66,43 @@ void Conf::SetAddrInfo() {
 
 }
 
+std::vector<std::string> *Conf::_CpyDirContent(std::vector<std::string> *src)  {
+	std::vector<std::string>			*cpy = new std::vector<std::string>;
+	std::vector<std::string>::iterator	it_b;
+
+	if (src != NULL && src->size() > 0)
+	{
+		for (it_b = src->begin(); it_b != src->end(); it_b++)
+			cpy->push_back(*it_b);
+	}
+	return (cpy);
+}
+
+std::vector<int> *Conf::_CpyHandledFDs(std::vector<int> *src){
+	std::vector<int>				*cpy = new std::vector<int>;
+	std::vector<int>::iterator		it_b;
+
+	if (src != NULL && src->size() > 0)
+		for (it_b = src->begin() ; it_b != src->end(); it_b++)
+			cpy->push_back(*it_b);
+	return (cpy);
+}
+
+void Conf::AddHandledFDs(int fd) {
+	this->_handled_fds->push_back(fd);
+}
+
+bool Conf::CheckFD(int fd) {
+	for (std::vector<int>::iterator it_b = this->_handled_fds->begin(); it_b != this->_handled_fds->end() ; it_b++)
+		if (*it_b == fd)
+			return (true);
+	return (false);
+}
+
+void Conf::RemoveFD(std::vector<int>::iterator fd) {
+	this->_handled_fds->erase(fd);
+}
+
 Conf &Conf::operator=(Conf &src){
 	this->_name = src._name;
 	this->_body = src._body;
@@ -69,16 +113,19 @@ Conf &Conf::operator=(Conf &src){
 	this->_delete = src._delete;
 	this->_err_path = src._err_path;
 	this->_html_path = src._html_path;
-	if (this->_error_pages->size() > 0)
+	if (this->_error_pages != NULL && this->_error_pages->size() > 0)
 		delete this->_error_pages;
-	if (this->_html_content->size() > 0)
+	if (this->_error_pages != NULL && this->_html_content->size() > 0)
 		delete this->_html_content;
-	this->_error_pages = directory_parser(_err_path);
-	this->_html_content = directory_parser(_html_path);
+	if (this->_handled_fds != NULL && this->_handled_fds->size() > 0)
+		delete this->_handled_fds;
+	this->_error_pages = src._CpyDirContent(src.GetErrContent());
+	this->_html_content = src._CpyDirContent(src.GetDirContent());
+	this->_handled_fds = src._CpyHandledFDs(src.GetHandledFDs());
 	return (*this);
 }
 
-std::string Conf::GetErrorPage(std::string page){
+std::string Conf::GetErrorPage(std::string page, char **env){
 	std::vector<std::string>::iterator	it_b;
 	std::vector<std::string>::iterator	it_e;
 	std::string							path;
@@ -95,7 +142,7 @@ std::string Conf::GetErrorPage(std::string page){
 		it_b++;
 	}
 	if (it_b != it_e)
-		page_content = readfileContent(*it_b, this->_env);
+		page_content = readfileContent(*it_b, env);
 	else if (it_b == it_e || page_content == "")
 	{
 		// Generate page
@@ -103,7 +150,7 @@ std::string Conf::GetErrorPage(std::string page){
 	return (page_content);
 }
 
-std::string Conf::GetDirPage(std::string page){
+std::string Conf::GetDirPage(std::string page, char **env){
 	std::vector<std::string>::iterator	it_b;
 	std::vector<std::string>::iterator	it_e;
 	std::string							path;
@@ -120,9 +167,9 @@ std::string Conf::GetDirPage(std::string page){
 		it_b++;
 	}
 	if (it_b != it_e)
-		page_content = readfileContent(*it_b, this->_env);
+		page_content = readfileContent(*it_b, env);
 	else if (it_b == it_e && (extension_check(page.c_str()) == 0 || extension_check(page.c_str()) == 4))
-		page_content = GetErrorPage("404.html");
+		page_content = GetErrorPage("404", env);
 	return (page_content);
 }
 
@@ -164,4 +211,8 @@ std::vector<std::string>	*Conf::GetDirContent() {
 
 std::vector<std::string>	*Conf::GetErrContent() {
 	return (_error_pages);
+}
+
+std::vector<int>			*Conf::GetHandledFDs() {
+	return (_handled_fds);
 }

@@ -1,7 +1,6 @@
 #include "../inc/conf.hpp"
 #include "../inc/library.hpp"
 
-
 std::string double_quotes_trim(std::string r_client, int pos)
 {
 	std::string r_delim;

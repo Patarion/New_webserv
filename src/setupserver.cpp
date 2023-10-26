@@ -19,6 +19,7 @@ bool connectServer(std::map<int, Conf*> *servers, Conf *serv) {
 		close(fd_serv);
 		return (false);
 	}
+	serv->InitHandledFDs();
 	servers->insert(std::make_pair(fd_serv, serv));
 	return (true);
 }
