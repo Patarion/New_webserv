@@ -74,21 +74,25 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 			{
-				if (FD_ISSET(*it_beg, &cpy_read))
+				if (FD_ISSET(*it_beg, &cpy_read) > 0)
 				{
-					r_recv = recv(*it_beg, r_client.data(), r_client.size(), 0 );
+					r_recv = recv(*it_beg, r_client.data(), r_client.size(), 0);
 					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
 					{
 						ready->push_back(*it_beg);
 						FD_SET(*it_beg, &write_fds);
+						FD_SET(*it_beg, &cpy_write);
 					}
 					else if (r_recv < 0)
 					{
 						FD_CLR(*it_beg, &read_fds);
 						FD_CLR(*it_beg, &write_fds);
+						FD_CLR(*it_beg, &cpy_write);
+						FD_CLR(*it_beg, &cpy_write);
 						client_fds->erase(it_beg);
+						close(*it_beg);
 						for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
-							if (it_b->first == *it_beg)
+							if (it_b->second->CheckFD(*it_beg) == true)
 								it_b->second->RemoveFD(*it_beg);
 						break ;
 					}
@@ -104,17 +108,31 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					{
 						if (it_b->second->CheckFD(*it_beg) == true)
 						{
-								response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
-								if (send(*it_beg, response.c_str(), response.size(), 0) == 0)
+							int	sent_bytes;
+							int	to_send;
+							int	total_bytes;
+							
+							total_bytes = 0;
+							sent_bytes = 0;
+							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
+							to_send = response.length();
+							while (total_bytes < to_send)
+							{
+								sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
+								if (sent_bytes < 0)
 								{
-									FD_CLR(*it_beg, &write_fds);
-									ready->erase(it_beg);
+									break ;
 								}
-								r_client.clear();
-								r_client.resize(MAX_BUFF_SIZE);
-								response = "";
-								r_recv = 0;
-								break ;
+								total_bytes += sent_bytes;
+							}
+							FD_CLR(*it_beg, &write_fds);
+							FD_CLR(*it_beg, &cpy_write);
+							ready->erase(it_beg);
+							r_client.clear();
+							r_client.resize(MAX_BUFF_SIZE);
+							response = "";
+							r_recv = 0;
+							break ;
 						}
 					}
 					break ;
