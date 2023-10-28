@@ -67,8 +67,8 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	std::string cpy_client;
 	r_request = "";
 	cpy_client = "";
+	
 	cpy_client.append(r_client.data());
-
 	if (cpy_client.find("GET /") != std::string::npos)
 		r_request = get_handler(r_client, server, env);
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == true)
@@ -78,7 +78,8 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == false)
 		r_request = error_handler(server->GetErrContent(), "403", env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == false)
-		r_request = error_handler(server->GetErrContent(), "403", env);
+		r_request = error_handler(server->GetErrContent(), "403", env); 
+	std::cout << " ==== TOUT NU ==== \n\n"  << std::endl;
 	return (r_request);
 }
 
