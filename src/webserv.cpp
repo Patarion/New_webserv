@@ -115,10 +115,8 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						if (it_b->second->CheckFD(*it_beg) == true)
 						{
 							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
-							if (send(*it_beg, response.c_str(), response.length(), 0) == -1)
-							{
-
-							}
+							if (response.length() > 0)
+								send(*it_beg, response.data(), response.length(), 0);
 							FD_CLR(*it_beg, &write_fds);
 							FD_CLR(*it_beg, &cpy_write);
 							ready->erase(it_beg);

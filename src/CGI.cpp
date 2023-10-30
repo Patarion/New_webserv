@@ -10,7 +10,6 @@ std::string 	CGI_Handler(std::string file, char **env)
 		pid_t		proc_exec;
 		int			pipe_fd[2];
 		char		buffer[1000000];
-//		int			status;
 		
 	i = 0;
 	if (pipe(pipe_fd) == -1)
@@ -55,8 +54,6 @@ std::string 	CGI_Handler(std::string file, char **env)
 	}
 	close(pipe_fd[0]);
 	close(pipe_fd[1]);
-	std::cout << "Exiting from CGI" << std::endl;
-	std::cout << r_CGI << std::endl;
 
 	return (r_CGI);
 }
@@ -70,7 +67,7 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	
 	cpy_client.append(r_client.begin(), r_client.end());
 	if (cpy_client.find("GET /") != std::string::npos)
-		r_request = get_handler(r_client, server, env);
+		r_request = get_handler(r_client, server, env, fd);
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == true)
 		r_request = post_handler(r_client, server, fd, ret_recv, env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == true)
