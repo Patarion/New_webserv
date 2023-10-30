@@ -76,9 +76,9 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == true)
 		r_request = delete_handler(r_client, server);
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == false)
-		r_request = error_handler(server->GetErrContent(), "403", env);
+		r_request = error_handler(server->GetErrContent(), "405", env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == false)
-		r_request = error_handler(server->GetErrContent(), "403", env);
+		r_request = error_handler(server->GetErrContent(), "405", env);
 	return (r_request);
 }
 
