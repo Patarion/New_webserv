@@ -79,7 +79,7 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 		r_request = error_handler(server->GetErrContent(), "403", env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == false)
 		r_request = error_handler(server->GetErrContent(), "403", env); 
-	std::cout << " ==== TOUT NU ==== \n\n"  << std::endl;
+	std::cout << " ==== REQUESST HNDLER EXIT ==== \n\n"  << std::endl;
 	return (r_request);
 }
 

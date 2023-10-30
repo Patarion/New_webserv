@@ -64,7 +64,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					client_socket = accept(it_b->first, (struct sockaddr *)&client_address, &client_address_size);
 					if (client_socket != -1)
 					{
-						fcntl(client_socket, F_SETFL, O_NONBLOCK);
+						fcntl(client_socket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 						FD_SET(client_socket, &read_fds);
 						client_fds->push_back(client_socket);
 						it_b->second->AddHandledFDs(client_socket);
@@ -163,7 +163,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		{
 			if ( cycle <= 0)
 				std::cout << "____ cycle EXIT_______" << std::endl;
-
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++) {
 				std::cout << " closing Vect shit... *it_beg :: " << *it_beg << " :: _______ " << std::endl;
 				FD_CLR(*it_beg, &write_fds);
