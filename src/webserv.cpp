@@ -44,10 +44,12 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		while (r_select == 0)
 		{
 			r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
-			if (r_select == 0 && cycle-- > 0);
+			if (r_select == 0 && cycle > 0)
+				cycle--;
 			else if (r_select < 0 || (r_select == 0 && cycle <= 0))
 				break ;
 		}
+		std::cout << "____ START r_select == " << r_select << " _______max_fd:" << max_fd << std::endl;
 		if (r_select > 0)
 		{
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
@@ -85,10 +87,10 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					}
 					else if (r_recv < 0)
 					{
-						FD_CLR(*it_beg, &read_fds);
+						// FD_CLR(*it_beg, &read_fds);
 						FD_CLR(*it_beg, &write_fds);
 						FD_CLR(*it_beg, &cpy_write);
-						FD_CLR(*it_beg, &cpy_write);
+						// FD_CLR(*it_beg, &cpy_read);
 						client_fds->erase(it_beg);
 						close(*it_beg);
 						for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
@@ -102,8 +104,10 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
+				std::cout << "### FOR LOOP VECTOR ITER " << *it_beg <<  std::endl;
 				if (FD_ISSET(*it_beg, &cpy_write))
 				{
+					std::cout << "### IF _ FD_ISSET succeded ### " <<  std::endl;
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
 						std::cout << "____ init_send test layout _______" << std::endl;
@@ -115,55 +119,68 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 							
 							total_bytes = 0;
 							sent_bytes = 0;
-								std::cout << " ====  before req_handl ==== \n\n"  << std::endl;
+							
+							std::cout << " ====  before req_handl ==== \n\n"  << std::endl;
 							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
-								std::cout << " ====  after req_handl ==== \n\n"  << std::endl;
 							to_send = response.length();
+							
+							std::cout << " ====  after req_handl ====  to_send" << to_send << "\n\n"  << std::endl;
 							while (total_bytes < to_send)
 							{
-								std::cout << "____ voila _______" << std::endl;
 								// sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
-								sent_bytes = send(*it_beg, response.c_str() + total_bytes, response.length(), 0);
+								sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
+								std::cout << "____ Into __ While::send  _______ sent_bytes:" << sent_bytes  << std::endl;
 								if (sent_bytes < 0)
 								{
 									break ;
 								}
 								total_bytes += sent_bytes;
-								std::cout << "____ pas voila pantoute _______" << std::endl;
 							}
-							std::cout << "____ TCHECK AFTER byte < send _______" << std::endl;
 							FD_CLR(*it_beg, &write_fds);
+							// FD_CLR(*it_beg, &read_fds);
 							FD_CLR(*it_beg, &cpy_write);
+							// FD_CLR(*it_beg, &cpy_read);
 							ready->erase(it_beg);
 							r_client.clear();
 							r_client.resize(MAX_BUFF_SIZE);
 							response = "";
 							r_recv = 0;
-							std::cout << "____ JUST BEFORE BREAK byte < send _______" << std::endl;
+							std::cout << "____ SEND DATA have been clear!!! _______ *it_beg=" << *it_beg << std::endl;
 							break ;
 						}
 						else
-							std::cout << "**** tout habiller ***" << std::endl;
-						std::cout << "########## moitier moitier ####" << std::endl;
+							std::cout << "____ FD not found in server list ... _______" << std::endl;
 					}
-					std::cout << "____ leaving map send ... _______" << std::endl;
+					std::cout << "____ leaving FOR LOOP map send ... _______" << std::endl;
 					break ;
 				}
-				std::cout << "____ ending trouble ... reset control ... _______" << std::endl;
+				else 
+					std::cout << "____ ending trouble ... reset control ..." << *it_beg << " _______" << std::endl;
 			}
+			// std::cout << "____ TCHECK AFTER byte < send _______" << std::endl;
 		}
-		else if (r_select == 0)
-			std::cout << "____ ENFIN CALISS... _______" << std::endl;
-		else if (r_select < 0)
+		if (r_select < 0 || cycle <= 0)
 		{
-			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
+			if ( cycle <= 0)
+				std::cout << "____ cycle EXIT_______" << std::endl;
+
+			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++) {
+				std::cout << " closing Vect shit... *it_beg :: " << *it_beg << " :: _______ " << std::endl;
+				FD_CLR(*it_beg, &write_fds);
+				FD_CLR(*it_beg, &read_fds);
+				FD_CLR(*it_beg, &cpy_write);
+				FD_CLR(*it_beg, &cpy_read);
 				close(*it_beg);
+			}
 			client_fds->clear();
 			ready->clear();
-			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
+			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++) {
+				std::cout << " closing MAP shit... *it_beg :: " << it_b->first << " :: _______ " << std::endl;
 				close(it_b->first);
+			}
 			break ;
 		}
+		std::cout << "____ ENFIN CALISS... r_select == [" << r_select << "] " << std::endl;
 	}
 }
 
