@@ -18,7 +18,7 @@ SRCS = 	src/conf.cpp\
 
 OBJS = $(SRCS:.c=.o)
 
-CC = g++ -g --std=c++98
+CC = g++ -g -std=c++98
 CFLAGS = -Wall -Werror -Wextra
 NORM = norminette
 RM = rm -rf

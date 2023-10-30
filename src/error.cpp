@@ -1,7 +1,30 @@
 #include "../inc/library.hpp"
 #include "../inc/conf.hpp"
 
-static std::string error_gen(int err_code)
+
+static std::string err_msg_gen(int err_code)
+{
+	switch (err_code) {
+		case 400 :
+			return ("Content-Type: text/plain\r\nContent-Length: 11\r\n\r\nBad Request");
+		case 403 :
+			return ("Content-Type: text/plain\r\nContent-Length: 16\r\n\r\nAction Forbidden");
+		case 404 : 
+			return ("Content-Type: text/plain\r\nContent-Length: 19\r\n\r\nRessource not found");
+		case 405 : 
+			return ("Content-Type: text/plain\r\nContent-Length: 34\r\n\r\nMethod not allowed for this server");
+		case 418 : 
+			return ("Content-Type: text/plain\r\nContent-Length: 67\r\n\r\nTrying to divide by zero are yeh?! This won't make you coffee mate!");
+		case 502 :
+			return ("Content-Type: text/plain\r\nContent-Length: 42\r\n\r\nBad Gateway the client connection sharted!");
+		case 507 : 
+			return ("Content-Type: text/plain\r\nContent-Length: 35\r\n\r\nThe file is too big for this server");
+		default :
+			return ("Content-Type: text/plain\r\nContent-Length: 38\r\n\r\nFigure this one out. I won't help you!");
+	}
+}
+
+static std::string err_header_gen(int err_code)
 {
 	switch (err_code) {
 		case 400 :
@@ -33,7 +56,7 @@ std::string error_handler(std::vector<std::string> *dir_content, std::string err
 
 	if (dir_content == NULL || dir_content->size() == 0)
 	{
-		response << error_gen(std::stoi(err_code));
+		response << err_header_gen(std::stoi(err_code)) << err_msg_gen(std::stoi(err_code));
 		return (response.str());
 	}
 	r_file = "";
@@ -50,10 +73,10 @@ std::string error_handler(std::vector<std::string> *dir_content, std::string err
 	if (it_b != it_e)
 	{
 		r_file = readfileContent(path, env);
-		response << error_gen(std::stoi(err_code)) << "Content-Type: text/html\r\nContent-Length: "<<\
+		response << err_header_gen(std::stoi(err_code)) << "Content-Type: text/html\r\nContent-Length: "<<\
 		r_file.length() << "\r\n\r\n" << r_file;
 	}
 	else if (it_b == it_e)
-		response << error_gen(std::stoi(err_code));
+		response << err_header_gen(std::stoi(err_code));
 	return (response.str());
 }
