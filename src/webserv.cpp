@@ -106,6 +106,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				{
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
+						std::cout << "____ init_send test layout _______" << std::endl;
 						if (it_b->second->CheckFD(*it_beg) == true)
 						{
 							int	sent_bytes;
@@ -114,17 +115,23 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 							
 							total_bytes = 0;
 							sent_bytes = 0;
+								std::cout << " ====  before req_handl ==== \n\n"  << std::endl;
 							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
+								std::cout << " ====  after req_handl ==== \n\n"  << std::endl;
 							to_send = response.length();
 							while (total_bytes < to_send)
 							{
+								std::cout << "____ voila _______" << std::endl;
+								// sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
 								sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
 								if (sent_bytes < 0)
 								{
 									break ;
 								}
 								total_bytes += sent_bytes;
+								std::cout << "____ pas voila pantoute _______" << std::endl;
 							}
+							std::cout << "____ TCHECK AFTER byte < send _______" << std::endl;
 							FD_CLR(*it_beg, &write_fds);
 							FD_CLR(*it_beg, &cpy_write);
 							ready->erase(it_beg);
@@ -132,13 +139,21 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 							r_client.resize(MAX_BUFF_SIZE);
 							response = "";
 							r_recv = 0;
+							std::cout << "____ JUST BEFORE BREAK byte < send _______" << std::endl;
 							break ;
 						}
+						else
+							std::cout << "**** tout habiller ***" << std::endl;
+						std::cout << "########## moitier moitier ####" << std::endl;
 					}
+					std::cout << "____ leaving map send ... _______" << std::endl;
 					break ;
 				}
+				std::cout << "____ ending trouble ... reset control ... _______" << std::endl;
 			}
 		}
+		else if (r_select == 0)
+			std::cout << "____ ENFIN CALISS... _______" << std::endl;
 		else if (r_select < 0)
 		{
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
