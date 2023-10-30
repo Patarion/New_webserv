@@ -37,15 +37,12 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 			path = *it_b;
 			if (path.find(file_to_find) != std::string::npos) {
 				std::cout << "\nPathToFile is found... {" << path << "} \n" << std::endl;
-				std::cout << "into while ___ *it_b tester :" << *it_b << std::endl;
 				break ;
 			}
 			it_b++;
 		}
 		if (it_b != it_e)
 		{
-			std::cout << " \nDid i just found the path" << std::endl;
-			std::cout << "into if ___ *it_b tester :" << *it_b << std::endl;
 			request += *it_b;
 			if (extension_check(request.c_str()) == 4)
 				r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
