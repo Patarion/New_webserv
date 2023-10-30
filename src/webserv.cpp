@@ -33,7 +33,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		fd_set						cpy_write;
 		static int					r_recv;
 
-		cycle = 3;
+		cycle = 2;
 		r_select = 0;
 		response = "";
 
@@ -62,7 +62,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					client_socket = accept(it_b->first, (struct sockaddr *)&client_address, &client_address_size);
 					if (client_socket != -1)
 					{
-						fcntl(client_socket, F_SETFL, O_NONBLOCK);
+						fcntl(client_socket, F_SETFL, O_NONBLOCK, FD_CLOEXEC);
 						FD_SET(client_socket, &read_fds);
 						client_fds->push_back(client_socket);
 						it_b->second->AddHandledFDs(client_socket);
@@ -76,7 +76,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			{
 				if (FD_ISSET(*it_beg, &cpy_read) > 0)
 				{
-					r_recv = recv(*it_beg, r_client.data(), r_client.size(), 0);
+					r_recv = recv(*it_beg, &r_client[0], r_client.size(), 0);
 					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
 					{
 						ready->push_back(*it_beg);
@@ -89,8 +89,14 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						FD_CLR(*it_beg, &write_fds);
 						FD_CLR(*it_beg, &cpy_write);
 						FD_CLR(*it_beg, &cpy_write);
-						client_fds->erase(it_beg);
 						close(*it_beg);
+						client_fds->erase(it_beg);
+						for (std::vector<int>::iterator it = ready->begin(); it != ready->end() ; it++)
+							if (*it_beg == *it)
+							{
+								ready->erase(it);
+								break ;
+							}
 						for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 							if (it_b->second->CheckFD(*it_beg) == true)
 								it_b->second->RemoveFD(*it_beg);
@@ -106,32 +112,13 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				{
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
-						std::cout << "____ init_send test layout _______" << std::endl;
 						if (it_b->second->CheckFD(*it_beg) == true)
 						{
-							int	sent_bytes;
-							int	to_send;
-							int	total_bytes;
-							
-							total_bytes = 0;
-							sent_bytes = 0;
-								std::cout << " ====  before req_handl ==== \n\n"  << std::endl;
 							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
-								std::cout << " ====  after req_handl ==== \n\n"  << std::endl;
-							to_send = response.length();
-							while (total_bytes < to_send)
+							if (send(*it_beg, response.c_str(), response.length(), 0) == -1)
 							{
-								std::cout << "____ voila _______" << std::endl;
-								// sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
-								sent_bytes = send(*it_beg, response.c_str(), response.length(), 0);
-								if (sent_bytes < 0)
-								{
-									break ;
-								}
-								total_bytes += sent_bytes;
-								std::cout << "____ pas voila pantoute _______" << std::endl;
+
 							}
-							std::cout << "____ TCHECK AFTER byte < send _______" << std::endl;
 							FD_CLR(*it_beg, &write_fds);
 							FD_CLR(*it_beg, &cpy_write);
 							ready->erase(it_beg);
@@ -139,22 +126,14 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 							r_client.resize(MAX_BUFF_SIZE);
 							response = "";
 							r_recv = 0;
-							std::cout << "____ JUST BEFORE BREAK byte < send _______" << std::endl;
 							break ;
 						}
-						else
-							std::cout << "**** tout habiller ***" << std::endl;
-						std::cout << "########## moitier moitier ####" << std::endl;
 					}
-					std::cout << "____ leaving map send ... _______" << std::endl;
 					break ;
 				}
-				std::cout << "____ ending trouble ... reset control ... _______" << std::endl;
 			}
 		}
-		else if (r_select == 0)
-			std::cout << "____ ENFIN CALISS... _______" << std::endl;
-		else if (r_select < 0)
+		else if (r_select < 0 || (r_select == 0 && cycle <= 0))
 		{
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 				close(*it_beg);

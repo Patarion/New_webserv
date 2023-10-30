@@ -8,7 +8,7 @@
 			"type": "lldb",
 			"request": "launch",
 			"name": "Debug",
-			"program": "/Users/gehebert/Documents/Git/New_webserv/webserv",
+			"program": "/Users/jgagnon/Desktop/New_webserv/webserv",
 			"args": ["Default.conf"],
 			"cwd": "${workspaceFolder}"
 		}

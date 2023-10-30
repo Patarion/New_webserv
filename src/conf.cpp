@@ -5,6 +5,20 @@ Conf::Conf() {
 	_html_content = NULL;
 	_error_pages = NULL;
 	_handled_fds = NULL;
+	_get = false;
+	_post = false;
+	_delete = false;
+	_name = "";
+	_body = 0;
+	_port = 0;
+	_address = 0;
+	_err_path = "";
+	_html_path = "";
+	memset((void *) &_addr_data, 0, sizeof(_addr_data));
+	_error_pages = NULL;
+	_html_content = NULL;
+	_handled_fds = NULL;
+
 }
 
 Conf::Conf(Conf &src)
