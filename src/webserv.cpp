@@ -116,7 +116,20 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						{
 							response = request_handler(r_client, it_b->second, env, *it_beg, r_recv);
 							if (response.length() > 0)
-								send(*it_beg, response.data(), response.length(), 0);
+							{
+								std::ofstream	tmp_outresponse("tmp.txt", std::ios::out);
+								std::ifstream	tmp_inresponse;
+								char			buffer[2048] = { 0 };
+								int				read_bytes;
+
+								read_bytes = 0;
+								tmp_outresponse << response;
+								tmp_outresponse.close();
+								tmp_inresponse.open("tmp.txt");
+								while ((read_bytes = tmp_inresponse.read(buffer, sizeof(buffer)).gcount()) > 0)
+        							send(*it_beg, buffer, read_bytes, 0);
+								std::remove("tmp.txt");
+							}
 							FD_CLR(*it_beg, &write_fds);
 							FD_CLR(*it_beg, &cpy_write);
 							ready->erase(it_beg);

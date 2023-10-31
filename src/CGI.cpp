@@ -64,10 +64,10 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	std::string cpy_client;
 	r_request = "";
 	cpy_client = "";
-	
 	cpy_client.append(r_client.begin(), r_client.end());
+	
 	if (cpy_client.find("GET /") != std::string::npos)
-		r_request = get_handler(r_client, server, env, fd);
+		r_request = get_handler(r_client, server, env);
 	else if (cpy_client.find("POST /") != std::string::npos && server->GetPost() == true)
 		r_request = post_handler(r_client, server, fd, ret_recv, env);
 	else if (cpy_client.find("DELETE /") != std::string::npos && server->GetDelete() == true)
