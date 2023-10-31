@@ -127,7 +127,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 								tmp_outresponse.close();
 								tmp_inresponse.open("tmp.txt");
 								while ((read_bytes = tmp_inresponse.read(buffer, sizeof(buffer)).gcount()) > 0)
-        							send(*it_beg, buffer, read_bytes, 0);
+									while (send(*it_beg, buffer, read_bytes, 0) < 0);
 								std::remove("tmp.txt");
 							}
 							FD_CLR(*it_beg, &write_fds);
