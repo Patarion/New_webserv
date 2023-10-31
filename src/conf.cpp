@@ -64,12 +64,17 @@ void Conf::SetPort(unsigned int port) {
 }
 
 void Conf::SetMethods(std::string methods) {
-	if (methods.find("GET") != std::string::npos)
-		_get = true;
-	if (methods.find("POST") != std::string::npos)
-		_post = true;
-	if (methods.find("DELETE") != std::string::npos)
-		_delete = true;
+	std::cout << methods << std::endl;
+	if (((methods.find("GETPOSTDELETE") != std::string::npos && methods.length() == 13) || (methods.find("GETPOST") != std::string::npos && methods.length() == 7)\
+		|| (methods.find("GET") != std::string::npos && methods.length() == 3)))
+	{
+		if (methods.find("GET") != std::string::npos)
+			_get = true;
+		if (methods.find("POST") != std::string::npos)
+			_post = true;
+		if (methods.find("DELETE") != std::string::npos)
+			_delete = true;
+	}
 }
 
 void Conf::SetAddrInfo() {
