@@ -28,11 +28,31 @@ Conf::Conf(Conf &src)
 
 Conf::~Conf() {
 	if (_html_content != NULL && _html_content->size() > 0)
+	{
+		_html_content->clear();
 		delete _html_content;
+	}
 	if (_error_pages != NULL && _error_pages->size() > 0)
+	{
+		_error_pages->clear();
 		delete _error_pages;
-	if (_handled_fds != NULL && _handled_fds->size() > 0)
+	}
+	if (_handled_fds != NULL)
+	{
+		if (_handled_fds->size() > 0)
+		{
+
+			std::vector<int>::iterator	it_b = _handled_fds->begin();
+			std::vector<int>::iterator	it_e = _handled_fds->end();
+			while (it_b != it_e)
+			{
+				close(*it_b);
+				it_b++;
+			}
+			_handled_fds->clear();
+		}
 		delete _handled_fds;
+	}
 }
 
 void Conf::InitHandledFDs() {
