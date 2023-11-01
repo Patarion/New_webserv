@@ -91,7 +91,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						FD_CLR(*it_beg, &write_fds);
 						FD_CLR(*it_beg, &cpy_write);
 						FD_CLR(*it_beg, &cpy_write);
-						close(*it_beg);
 						client_fds->erase(it_beg);
 						for (std::vector<int>::iterator it = ready->begin(); it != ready->end() ; it++)
 							if (*it_beg == *it)
@@ -102,6 +101,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 							if (it_b->second->CheckFD(*it_beg) == true)
 								it_b->second->RemoveFD(*it_beg);
+						close(*it_beg);
 						break ;
 					}
 					if (r_recv > 0)
@@ -165,8 +165,9 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			client_fds->clear();
 			ready->clear();
-			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++) {
-				std::cout << " closing MAP shit... *it_beg :: " << it_b->first << " :: _______ " << std::endl;
+			delete client_fds;
+			delete ready;
+			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 				close(it_b->first);
 			}
 			break ;
@@ -198,4 +199,5 @@ int main (int argc, char **argv, char **env)
 	}
 	else if (servers->size() == 0)
 		std::cout << "Une erreur est survenue lors du parsing" << std::endl;
+	delete servers;
 }
