@@ -49,7 +49,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			else if (r_select < 0 || (r_select == 0 && cycle <= 0))
 				break ;
 		}
-		std::cout << "____ START r_select == " << r_select << " _______max_fd:" << max_fd << std::endl;
+		// std::cout << "____ START r_select == " << r_select << " _______max_fd:" << max_fd << std::endl;
 		if (r_select > 0)
 		{
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
@@ -110,10 +110,10 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
-				std::cout << "### FOR LOOP VECTOR ITER " << *it_beg <<  std::endl;
+				// std::cout << "### FOR LOOP VECTOR ITER " << *it_beg <<  std::endl;
 				if (FD_ISSET(*it_beg, &cpy_write))
 				{
-					std::cout << "### IF _ FD_ISSET succeded ### " <<  std::endl;
+					// std::cout << "### IF _ FD_ISSET succeded ### " <<  std::endl;
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
 						if (it_b->second->CheckFD(*it_beg) == true)
@@ -153,10 +153,10 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		}
 		else if (r_select < 0 || (r_select == 0 && cycle <= 0))
 		{
-			if ( cycle <= 0)
-				std::cout << "____ cycle EXIT_______" << std::endl;
+			// if ( cycle <= 0)
+				// std::cout << "____ cycle EXIT_______" << std::endl;
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++) {
-				std::cout << " closing Vect shit... *it_beg :: " << *it_beg << " :: _______ " << std::endl;
+				// std::cout << " closing Vect shit... *it_beg :: " << *it_beg << " :: _______ " << std::endl;
 				FD_CLR(*it_beg, &write_fds);
 				FD_CLR(*it_beg, &read_fds);
 				FD_CLR(*it_beg, &cpy_write);
@@ -169,10 +169,9 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			delete ready;
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 				close(it_b->first);
-			}
 			break ;
 		}
-		std::cout << "____ ENFIN CALISS... r_select == [" << r_select << "] " << std::endl;
+		// std::cout << "____ ENFIN CALISS... r_select == [" << r_select << "] " << std::endl;
 	}
 }
 

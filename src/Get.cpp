@@ -112,6 +112,8 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 	std::ostringstream	str_stream;
 	std::string 		result;
 
+	std::cout << "\n CALCULATE num1 = [" << num1 << "] \n" << std::endl;
+	std::cout << "\n CALCULATE num2 = [" << num2 << "] \n" << std::endl;
 	result = "";
 	if (data.find("&operator=add") != std::string::npos)
 		num1 += num2;
@@ -125,6 +127,8 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 			return (error_handler(err_content, "418", env));
 		num1 /= num2;
 	}
+
+	std::cout << "result = [" << num1 << "] " << std::endl;
 	str_stream << num1;
 	result = str_stream.str();
 	return (calculate_response(result));
@@ -144,6 +148,7 @@ std::string treat_calculate(std::vector<std::string>  *err_content, std::string 
 	index = 0;
 	str_nbr = "";
 	
+	std::cout << "\n\nDEBUG___CALCULETTE ___ INIT treat \n\n"  << std::endl;
 	str_nbr = data.substr(5, (data.find("&operator=") - 5));
 	try {
 		num1 = std::stold(str_nbr);
@@ -161,5 +166,6 @@ std::string treat_calculate(std::vector<std::string>  *err_content, std::string 
 		return (error_handler(err_content, "400", env));
 	}
 	result = calculate_form(num1, num2, err_content, data, env);
+	std::cout << "DEBUG___CALCULETTE ==>> " << result << std::endl;
 	return(result);
 }
