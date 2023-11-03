@@ -163,13 +163,14 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		str_client += *it_b;
 		it_b++;
 	}
-	std::cout << str_client << std::endl;
 	if (str_client.find("Content-Type: application/x-www-form-urlencoded") != std::string::npos)
 	{
 		num_path = 1;
 		pos = str_client.find("\r\n\r\n");
+		std::cout << "\n\n ...  ... Post_Handler ... POS = " << pos << "\n\n" <<  std::endl;
 		data = str_client.substr(pos + 4, std::string::npos);
-		if (data.find("&num1=") != std::string::npos && data.find("&operator=") != std::string::npos && data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos) {
+		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos && data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos) {
+			std::cout << "Je dois calculer" << std::endl;
 			return (treat_calculate(server->GetErrContent(), data, env)); 
 		}
 			// std::cout << data << std::endl;
@@ -184,7 +185,7 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		r_client = check_transmission(r_client, delim, fd, ret_recv);
 		data = treat_post(r_client, delim.c_str(), server, env);
 	}
-	std::cout << "\n\n POST EXIT.... num_path " << num_path << "... DATA " << data << " ... \n\n" << std::endl; 
+	std::cout << "\n\n POST EXIT.... num_path " << num_path << "... DATA [" << data << "] ... \n\n" << std::endl; 
 	return (data);
 }
 

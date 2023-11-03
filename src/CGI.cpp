@@ -64,7 +64,9 @@ std::string request_handler(const std::vector<char> r_client, Conf *server, char
 	std::string cpy_client;
 	r_request = "";
 	cpy_client = "";
+	std::cout << "Voici le contenu de la requete  avant : " << cpy_client << std::endl;
 	cpy_client.append(r_client.begin(), r_client.end());
+	std::cout << "Voici le contenu de la requete  apres : " << cpy_client << std::endl;
 	
 	if (cpy_client.find("GET /") != std::string::npos)
 		r_request = get_handler(r_client, server, env);
