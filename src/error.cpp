@@ -1,7 +1,6 @@
 #include "../inc/library.hpp"
 #include "../inc/conf.hpp"
 
-
 static std::string err_msg_gen(int err_code)
 {
 	switch (err_code) {
@@ -77,6 +76,6 @@ std::string error_handler(std::vector<std::string> *dir_content, std::string err
 		r_file.length() << "\r\n\r\n" << r_file;
 	}
 	else if (it_b == it_e)
-		response << err_header_gen(std::stoi(err_code));
+		response << err_header_gen(std::stoi(err_code)) << err_msg_gen(std::stoi(err_code));
 	return (response.str());
 }
