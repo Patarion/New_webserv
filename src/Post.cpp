@@ -84,11 +84,11 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		it_b++;
 	}
 	std::cout << str_client << std::endl;
-	if (str_client.find("Content-Type: application/x-www-form-urlencoded; ") != std::string::npos)
+	if (str_client.find("Content-Type: application/x-www-form-urlencoded;") != std::string::npos ||\
+		str_client.find("Content-Type: application/x-www-form-urlencoded\r\n"))
 	{
 		pos = str_client.find("\r\n\r\n");
 		data = str_client.substr(pos + 4, std::string::npos);
-		std::cout << data << std::endl;
 		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos &&\
 			data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos)
 			return (treat_calculate(server->GetErrContent(), data, env));
