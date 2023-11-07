@@ -45,7 +45,7 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 				r_file = readfileContent(request, env);
 			if (r_file.length() == 0)
 			{
-				std::cout << "Le fichier suivant : _" << *it_b << "_ n'a pu être ouvert" << std::endl;
+				std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
 				return (stream_request.str());
 			}
 			stream_request << get_response_handler(request, r_file);
@@ -112,8 +112,6 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 	std::ostringstream	str_stream;
 	std::string 		result;
 
-	// std::cout << "\n CALCULATE num1 = [" << num1 << "] \n" << std::endl;
-	// std::cout << "\n CALCULATE num2 = [" << num2 << "] \n" << std::endl;
 	result = "";
 	if (data.find("&operator=add") != std::string::npos)
 		num1 += num2;
@@ -128,7 +126,6 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 		num1 /= num2;
 	}
 
-	// std::cout << "result = [" << num1 << "] " << std::endl;
 	str_stream << num1;
 	result = str_stream.str();
 	return (calculate_response(result));
@@ -166,6 +163,33 @@ std::string treat_calculate(std::vector<std::string>  *err_content, std::string 
 		return (error_handler(err_content, "400", env));
 	}
 	result = calculate_form(num1, num2, err_content, data, env);
-	// std::cout << "DEBUG___CALCULETTE ==>> " << result << std::endl;
 	return(result);
+}
+
+std::string treat_concours(std::vector<std::string> *err_content, std::string data, char **env)
+{
+	std::string			value;
+	std::string			r_file;
+	std::ofstream		database;
+	std::ostringstream	str_to_append;
+	std::ostringstream	response;
+
+	value = "";
+	r_file = "";
+	database.open("database.txt", std::ios::app);
+	value = data.substr(4, (data.find("&prenom=") - 4));
+	if (checkallChar(value) != value.length())
+		return (error_handler(err_content, "400", env));
+	str_to_append << "Participant" << std::endl;
+	str_to_append << "Nom : " << value << std::endl;
+	value = data.substr((data.find("&prenom=") + 8), (data.find("&submit=") - (data.find("&prenom=") + 8)));
+	if (checkallChar(value) != value.length())
+		return (error_handler(err_content, "400", env));
+	str_to_append << "Prenom : " << value << std::endl;
+	database << str_to_append.str();
+	database.close();
+	r_file = readfileContent("Website/form/treated.php", env);
+	response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n" <<\
+		"Content-Length: " << r_file.length() << "\r\n\r\n" << r_file;
+	return (response.str());
 }

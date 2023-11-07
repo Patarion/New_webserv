@@ -145,7 +145,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					}
 					break ;
 				}
-				// std::cout << " \n### FOR LOOP MAX_FD = " << max_fd << std::endl;
 			}
 		}
 		else if (r_select < 0 || (r_select == 0 && cycle <= 0))

@@ -91,6 +91,9 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos &&\
 			data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos)
 			return (treat_calculate(server->GetErrContent(), data, env));
+		else if (data.find("nom=") != std::string::npos && data.find("&prenom=") != std::string::npos &&\
+			data.find("&submit=database") != std::string::npos)
+			return (treat_concours(server->GetErrContent(), data, env));
 	}
 	else if (str_client.find("Content-Type: multipart/form-data;") != std::string::npos)
 	{

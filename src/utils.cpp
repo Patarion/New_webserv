@@ -39,3 +39,16 @@ void clearservers(std::map<int, Conf *> *servers, Conf *conf_serv) {
 	servers = NULL;
 	return ;
 }
+
+unsigned long checkallChar(std::string str)
+{
+	int	nbr_char;
+
+	nbr_char = 0;
+	for (std::string::iterator it_b = str.begin() ; it_b != str.end() ; it_b ++)
+	{
+		if (std::isalpha(*it_b) != 0)
+			nbr_char++;
+	}
+	return (nbr_char);
+}
