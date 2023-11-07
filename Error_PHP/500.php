@@ -6,6 +6,7 @@
 <body>
     <h1>500 - Internal Server Error</h1>
     <p>Your request appears to be malformed or invalid.</p>
+    <p>TODAY:<?php echo date("Y-m-d H:i:s"); ?></p>
     <p>Return to the <a href="/">home page</a>.</p>
 </body>
 </html>

@@ -76,11 +76,11 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 			{
-				std::cout << "### FOR LOOP VECTOR ITER  client_fds :" << *it_beg <<  std::endl;
+				// std::cout << "### FOR LOOP VECTOR ITER  client_fds :" << *it_beg <<  std::endl;
 				if (FD_ISSET(*it_beg, &cpy_read) > 0)
 				{	
 					r_recv = recv(*it_beg, &r_client[0], r_client.size(), 0);
-					std::cout << "### IF _ FD_ISSET  client_fds  succeded : " << *it_beg << " ###  r_recv >> " << r_recv << std::endl;
+					// std::cout << "### IF _ FD_ISSET  client_fds  succeded : " << *it_beg << " ###  r_recv >> " << r_recv << std::endl;
 					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
 					{
 						ready->push_back(*it_beg);
@@ -112,10 +112,10 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
-				std::cout << "### FOR LOOP VECTOR ITER  ready :" << *it_beg <<  std::endl;
+				// std::cout << "### FOR LOOP VECTOR ITER  ready :" << *it_beg <<  std::endl;
 				if (FD_ISSET(*it_beg, &cpy_write))
 				{
-					std::cout << "### IF _ FD_ISSET  ready  succeded : " << *it_beg << " ### " << std::endl;
+					// std::cout << "### IF _ FD_ISSET  ready  succeded : " << *it_beg << " ### " << std::endl;
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
 						if (it_b->second->CheckFD(*it_beg) == true)
@@ -152,7 +152,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 					}
 					break ;
 				}
-				std::cout << " \n### FOR LOOP MAX_FD = " << max_fd << std::endl;
+				// std::cout << " \n### FOR LOOP MAX_FD = " << max_fd << std::endl;
 			}
 		}
 		else if (r_select < 0 || (r_select == 0 && cycle <= 0))
