@@ -6,14 +6,13 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 	struct timeval					refresh_time;
 	fd_set							read_fds;
 	fd_set 							write_fds;
-	int								cycle;
 	int								r_select;
 	int								max_fd;
 	std::vector<int>				*ready = new std::vector<int>;
 	std::vector<int>				*client_fds = new std::vector<int>;
 	std::string						response;
 
-	refresh_time.tv_sec = 10;
+	refresh_time.tv_sec = 30;
 	refresh_time.tv_usec = 0;
 	max_fd = 0;
 	FD_ZERO(&write_fds);
@@ -33,7 +32,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		fd_set						cpy_write;
 		static int					r_recv;
 
-		cycle = 3;
 		r_select = 0;
 		response = "";
 
@@ -41,14 +39,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		FD_ZERO(&cpy_write);
 		FD_COPY(&read_fds, &cpy_read);
 		FD_COPY(&write_fds,  &cpy_write);
-		while (r_select == 0)
-		{
-			r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
-			if (r_select == 0 && cycle > 0)
-				cycle--;
-			else if (r_select < 0 || (r_select == 0 && cycle <= 0))
-				break ;
-		}
+		r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
 		if (r_select > 0)
 		{
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
@@ -147,7 +138,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				}
 			}
 		}
-		else if (r_select < 0 || (r_select == 0 && cycle <= 0))
+		else if (r_select <= 0)
 		{
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++) {
 				FD_CLR(*it_beg, &write_fds);
@@ -181,15 +172,18 @@ static bool SetsingleServer(std::string path, std::map<int, Conf*> *servers)
 	single_serveur->SetAddrInfo();
 	single_serveur->SetMethods("GET");
 	single_serveur->SetServerContent(path);
-	if (single_serveur->GetDirContent() == NULL || single_serveur->GetDirContent()->size() <= 0)
+	if (single_serveur->GetDirContent() == NULL || single_serveur->GetDirContent()->size() <= 0\
+		|| count_extension(single_serveur->GetDirContent(), 0) <= 0)
 	{
 		clearservers(servers, single_serveur);
+		std::cout << "Le chemin pour le serveur individuel contient aucun fichier" << std::endl;
 		error_pages->clear();
 		delete error_pages;
 		return (false);
 	}
 	if (connectServer(servers, single_serveur) == false)
 	{
+		std::cout << "La connection pour le serveur individuel n'a pu etre etablie" << std::endl;
 		clearservers(servers, single_serveur);	
 		return (false);
 	}
@@ -220,10 +214,7 @@ int main (int argc, char **argv, char **env)
 		if (is_ok == true)
 			serveur_count = 1;
 		else if (is_ok == false)
-		{
-			std::cout << "Une erreur est survenue dans le parsing du serveur individuel" << std::endl;
 			return (-1);
-		}
 	}
 	if (servers->size() == 0)
 		str_content = check_args(argc, argv, env);
@@ -244,8 +235,6 @@ int main (int argc, char **argv, char **env)
 		servers_routine(servers, env);
 		clearservers(servers, NULL);
 	}
-	if (servers->size() == 0 || is_ok == false)
-		std::cout << "Une erreur est survenue lors du parsing" << std::endl;
 	delete servers;
 	return (0);
 }

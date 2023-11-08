@@ -48,5 +48,6 @@ void						parse_file(std::string content, int serveur_count, std::map<int, Conf 
 std::string					treat_concours(std::vector<std::string> *err_content, std::string data, char **env);
 unsigned long				checkallChar(std::string str);
 int							check_nbserver(std::string file_content);
+int							count_extension(std::vector<std::string> *dir_content, int extension);
 
 #endif

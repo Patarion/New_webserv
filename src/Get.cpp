@@ -20,39 +20,33 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	str_client.append(r_client.data());		
 	it_b = server->GetDirContent()->begin();
 	it_e = server->GetDirContent()->end();
-	file_to_find = str_client.substr(4, str_client.find(" HTTP/1.1") - 4);
 	if (str_client.find("GET / HTTP/1.1") != std::string::npos)
-	{
-		r_file = readfileContent("Website/html/index.html", env);
-		stream_request << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n" <<\
-		"Content-Length: " << r_file.length() << "\r\n\r\n" << r_file;
-	}
+		file_to_find = "index.html";
 	else if (str_client.find("GET /") != std::string::npos)
+		file_to_find = str_client.substr(4, str_client.find(" HTTP/1.1") - 4);
+	while (it_b != it_e)
 	{
-		while (it_b != it_e)
-		{
-			path = *it_b;
-			if (path.find(file_to_find) != std::string::npos)
-				break ;
-			it_b++;
-		}
-		if (it_b != it_e)
-		{
-			request += *it_b;
-			if (extension_check(request.c_str()) == 4)
-				r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
-			else
-				r_file = readfileContent(request, env);
-			if (r_file.length() == 0)
-			{
-				std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
-				return (stream_request.str());
-			}
-			stream_request << get_response_handler(request, r_file);
-		}
-		else if (it_b == it_e)
-			stream_request << error_handler(server->GetErrContent(), "404", env);
+		path = *it_b;
+		if (path.find(file_to_find) != std::string::npos)
+			break ;
+		it_b++;
 	}
+	if (it_b != it_e)
+	{
+		request += *it_b;
+		if (extension_check(request.c_str()) == 4)
+			r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
+		else
+			r_file = readfileContent(request, env);
+		if (r_file.length() == 0)
+		{
+			std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
+			return (stream_request.str());
+		}
+		stream_request << get_response_handler(request, r_file);
+	}
+	else if (it_b == it_e)
+		stream_request << error_handler(server->GetErrContent(), "404", env);
 	return (stream_request.str());
 }
 
@@ -145,7 +139,6 @@ std::string treat_calculate(std::vector<std::string>  *err_content, std::string 
 	index = 0;
 	str_nbr = "";
 	
-	// std::cout << "\n\nDEBUG___CALCULETTE ___ INIT treat \n\n"  << std::endl;
 	str_nbr = data.substr(5, (data.find("&operator=") - 5));
 	try {
 		num1 = std::stold(str_nbr);

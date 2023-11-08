@@ -93,7 +93,7 @@ static bool setServeurInfo(std::string line, Conf *serveur, int i)
 		{
 			std::vector<std::string>	*dir_content;
 			dir_content = directory_parser(line);
-			if (dir_content->size() <= 0)
+			if (dir_content->size() <= 0 || (count_extension(dir_content, 0) <= 0 && count_extension(dir_content, 4) <= 0))
 			{
 				delete dir_content;
 				return (false);
@@ -169,9 +169,15 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	if (conf_serv == NULL)
 		return(clearservers(servers, conf_serv));
 	if (setServeur(server_data, conf_serv) == false)
+	{
+		std::cout << "Une des infos dans le fichier de config est errone" << std::endl;
 		return(clearservers(servers, conf_serv));
+	}
 	if (connectServer(servers, conf_serv) == false)
+	{
+		std::cout << "Au moins l'un des port du fichier de config n'est pas disponible" << std::endl;
 		return(clearservers(servers, conf_serv));
+	}
 	nb_server++;
 	content = &content[content.find("}") + 2];
 	parse_file(content, serveur_count, servers, env);
