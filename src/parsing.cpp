@@ -16,9 +16,10 @@ std::string check_args(int argc, char **argv, char **env)
 		std::cout << "Veuillez fournir un seul argument et un fichier de configuration de format .conf" << std::endl;
 		return ("");
 	}
-
 	file_name = argv[1];
-	if (std::count(file_name.begin(), file_name.end(), '.') != 1 || file_name.find(".conf") != (file_name.length() - 5))
+	if (file_name.find(".conf") == std::string::npos && access(argv[1], F_OK) == 0)
+		return (file_name);
+	else if (std::count(file_name.begin(), file_name.end(), '.') != 1 || file_name.find(".conf") != (file_name.length() - 5))
 	{
 		std::cout << "Le type de fichier donné n'est pas valide. Veuillez fournir un fichier avec l'extension .conf" << std::endl;
 		return ("");
@@ -155,7 +156,7 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	static int	nb_server;
 	std::string	server_data;
 
-	if (nb_server >= serveur_count || content.find("server") == std::string::npos || servers == NULL)
+	if (nb_server >= serveur_count || content.find("server\n") == std::string::npos || servers == NULL)
 		return ;
 	server_data = content.substr(content.find("{") + 1 , (content.find("}") - content.find("{") - 1));
 	std::cout << "Je parse un serveur" << std::endl;
@@ -166,11 +167,11 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 
 	Conf	*conf_serv = new Conf();
 	if (conf_serv == NULL)
-		return clearservers(servers, NULL);
+		return(clearservers(servers, conf_serv));
 	if (setServeur(server_data, conf_serv) == false)
-		return clearservers(servers, conf_serv);
+		return(clearservers(servers, conf_serv));
 	if (connectServer(servers, conf_serv) == false)
-		return clearservers(servers, conf_serv);
+		return(clearservers(servers, conf_serv));
 	nb_server++;
 	content = &content[content.find("}") + 2];
 	parse_file(content, serveur_count, servers, env);

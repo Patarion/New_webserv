@@ -52,3 +52,21 @@ unsigned long checkallChar(std::string str)
 	}
 	return (nbr_char);
 }
+
+int	check_nbserver(std::string file_content)
+{
+	int	count;
+
+	count = 0;
+	while (1)
+	{
+		if (file_content.find("server\n") != std::string::npos)
+		{
+			count++;
+			file_content = &file_content[file_content.find("server\n") + 8];
+		}
+		else if (file_content.find("server\n") == std::string::npos)
+			break ;
+	}
+	return (count);
+}

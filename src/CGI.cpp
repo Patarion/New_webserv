@@ -42,7 +42,6 @@ std::string 	CGI_Handler(std::string file, char **env)
 		{
 			std::cout << "Exceve est de la marde" << std::endl;
 			//error handler here
-			exit(EXIT_FAILURE);
 		}
 	}
 	else if (proc_exec > 0)

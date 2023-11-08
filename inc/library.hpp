@@ -47,5 +47,6 @@ std::string					check_args(int argc, char **argv, char **env);
 void						parse_file(std::string content, int serveur_count, std::map<int, Conf *> *servers, char **env);
 std::string					treat_concours(std::vector<std::string> *err_content, std::string data, char **env);
 unsigned long				checkallChar(std::string str);
+int							check_nbserver(std::string file_content);
 
 #endif

@@ -169,28 +169,83 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 	}
 }
 
+static bool SetsingleServer(std::string path, std::map<int, Conf*> *servers)
+{
+	Conf *single_serveur = new Conf();
+	std::vector<std::string> *error_pages;
+
+	error_pages = directory_parser("Error/");
+	single_serveur->SetErrorPages(error_pages);
+	single_serveur->SetPort(8000);
+	single_serveur->SetBodySize(50);
+	single_serveur->SetAddrInfo();
+	single_serveur->SetMethods("GET");
+	single_serveur->SetServerContent(path);
+	if (single_serveur->GetDirContent() == NULL || single_serveur->GetDirContent()->size() <= 0)
+	{
+		clearservers(servers, single_serveur);
+		error_pages->clear();
+		delete error_pages;
+		return (false);
+	}
+	if (connectServer(servers, single_serveur) == false)
+	{
+		clearservers(servers, single_serveur);	
+		return (false);
+	}
+	return (true);
+}
+
 int main (int argc, char **argv, char **env)
 {
 	std::string				str_content;
+	std::string				path;
 	std::map<int, Conf*>	*servers = new std::map<int, Conf *>;
 	int						serveur_count;
+	bool					is_ok = false;
 
-	str_content = check_args(argc, argv, env);
 	serveur_count = 0;
 	servers->clear();
-	if (str_content.length() <= 0)
-		exit (EXIT_FAILURE);
-	if (std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}'))
+	path = argv[1];
+	str_content = "";
+	if (path.find(".conf") == std::string::npos)
+	{
+		if (access(argv[1], F_OK) != 0)
+		{
+			std::cout << "Le chemin ou le fichier pour le serveur individuel est inexistant ou inaccessible" << std::endl;
+			delete servers;
+			return (-1);
+		}
+		is_ok = SetsingleServer(path, servers);
+		if (is_ok == true)
+			serveur_count = 1;
+		else if (is_ok == false)
+		{
+			std::cout << "Une erreur est survenue dans le parsing du serveur individuel" << std::endl;
+			return (-1);
+		}
+	}
+	if (servers->size() == 0)
+		str_content = check_args(argc, argv, env);
+	if (servers->size() == 0 && str_content.length() <= 0)
+		return (-1);
+	if (serveur_count == 0 && std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}') &&\
+		std::count(str_content.begin(), str_content.end(), '{') == check_nbserver(str_content))
 		serveur_count = std::count(str_content.begin(), str_content.end(), '{');
 	if (serveur_count <= 0)
-		exit (EXIT_FAILURE);
-	parse_file(str_content, serveur_count, servers, env);
+	{
+		std::cout << "Il y a une erreur dans le formatage du fichier .conf" << std::endl;
+		return (-1);
+	}
+	if (servers->size() == 0)
+		parse_file(str_content, serveur_count, servers, env);
 	if (servers->size() > 0)
 	{
 		servers_routine(servers, env);
 		clearservers(servers, NULL);
 	}
-	else if (servers->size() == 0)
+	if (servers->size() == 0 || is_ok == false)
 		std::cout << "Une erreur est survenue lors du parsing" << std::endl;
 	delete servers;
+	return (0);
 }
