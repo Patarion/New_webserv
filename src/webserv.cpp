@@ -6,14 +6,13 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 	struct timeval					refresh_time;
 	fd_set							read_fds;
 	fd_set 							write_fds;
-	int								cycle;
 	int								r_select;
 	int								max_fd;
 	std::vector<int>				*ready = new std::vector<int>;
 	std::vector<int>				*client_fds = new std::vector<int>;
 	std::string						response;
 
-	refresh_time.tv_sec = 10;
+	refresh_time.tv_sec = 30;
 	refresh_time.tv_usec = 0;
 	max_fd = 0;
 	FD_ZERO(&write_fds);
@@ -33,7 +32,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		fd_set						cpy_write;
 		static int					r_recv;
 
-		cycle = 2;
 		r_select = 0;
 		response = "";
 
@@ -41,13 +39,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 		FD_ZERO(&cpy_write);
 		FD_COPY(&read_fds, &cpy_read);
 		FD_COPY(&write_fds,  &cpy_write);
-		while (r_select == 0)
-		{
-			r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
-			if (r_select == 0 && cycle-- > 0);
-			else if (r_select < 0 || (r_select == 0 && cycle <= 0))
-				break ;
-		}
+		r_select = select(max_fd + 1, &cpy_read, &cpy_write, NULL, &refresh_time);
 		if (r_select > 0)
 		{
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
@@ -75,7 +67,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 			{
 				if (FD_ISSET(*it_beg, &cpy_read) > 0)
-				{
+				{	
 					r_recv = recv(*it_beg, &r_client[0], r_client.size(), 0);
 					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
 					{
@@ -83,11 +75,11 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						FD_SET(*it_beg, &write_fds);
 						FD_SET(*it_beg, &cpy_write);
 					}
-					else if (r_recv < 0)
+					else if (r_recv <= 0)
 					{
 						FD_CLR(*it_beg, &read_fds);
+						FD_CLR(*it_beg, &cpy_read);
 						FD_CLR(*it_beg, &write_fds);
-						FD_CLR(*it_beg, &cpy_write);
 						FD_CLR(*it_beg, &cpy_write);
 						client_fds->erase(it_beg);
 						for (std::vector<int>::iterator it = ready->begin(); it != ready->end() ; it++)
@@ -126,6 +118,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 								tmp_outresponse << response;
 								tmp_outresponse.close();
 								tmp_inresponse.open("tmp.txt");
+
 								while ((read_bytes = tmp_inresponse.read(buffer, sizeof(buffer)).gcount()) > 0)
 									while (send(*it_beg, buffer, read_bytes, 0) < 0);
 								tmp_inresponse.close();
@@ -145,43 +138,103 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				}
 			}
 		}
-		else if (r_select < 0 || (r_select == 0 && cycle <= 0))
+		else if (r_select <= 0)
 		{
-			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
+			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++) {
+				FD_CLR(*it_beg, &write_fds);
+				FD_CLR(*it_beg, &read_fds);
+				FD_CLR(*it_beg, &cpy_write);
+				FD_CLR(*it_beg, &cpy_read);
 				close(*it_beg);
+			}
 			client_fds->clear();
 			ready->clear();
+			r_client.clear();
 			delete client_fds;
 			delete ready;
 			for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 				close(it_b->first);
 			break ;
 		}
+		// std::cout << "____ ENFIN CALISS... r_select == [" << r_select << "] " << std::endl;
 	}
+}
+
+static bool SetsingleServer(std::string path, std::map<int, Conf*> *servers)
+{
+	Conf *single_serveur = new Conf();
+	std::vector<std::string> *error_pages;
+
+	error_pages = directory_parser("Error/");
+	single_serveur->SetErrorPages(error_pages);
+	single_serveur->SetPort(8000);
+	single_serveur->SetBodySize(50);
+	single_serveur->SetAddrInfo();
+	single_serveur->SetMethods("GET");
+	single_serveur->SetServerContent(path);
+	if (single_serveur->GetDirContent() == NULL || single_serveur->GetDirContent()->size() <= 0\
+		|| count_extension(single_serveur->GetDirContent(), 0) <= 0)
+	{
+		clearservers(servers, single_serveur);
+		std::cout << "Le chemin pour le serveur individuel contient aucun fichier" << std::endl;
+		error_pages->clear();
+		delete error_pages;
+		return (false);
+	}
+	if (connectServer(servers, single_serveur) == false)
+	{
+		std::cout << "La connection pour le serveur individuel n'a pu etre etablie" << std::endl;
+		clearservers(servers, single_serveur);	
+		return (false);
+	}
+	return (true);
 }
 
 int main (int argc, char **argv, char **env)
 {
 	std::string				str_content;
+	std::string				path;
 	std::map<int, Conf*>	*servers = new std::map<int, Conf *>;
 	int						serveur_count;
+	bool					is_ok = false;
 
-	str_content = check_args(argc, argv, env);
 	serveur_count = 0;
 	servers->clear();
-	if (str_content.length() <= 0)
-		exit (EXIT_FAILURE);
-	if (std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}'))
+	path = argv[1];
+	str_content = "";
+	if (path.find(".conf") == std::string::npos)
+	{
+		if (access(argv[1], F_OK) != 0)
+		{
+			std::cout << "Le chemin ou le fichier pour le serveur individuel est inexistant ou inaccessible" << std::endl;
+			delete servers;
+			return (-1);
+		}
+		is_ok = SetsingleServer(path, servers);
+		if (is_ok == true)
+			serveur_count = 1;
+		else if (is_ok == false)
+			return (-1);
+	}
+	if (servers->size() == 0)
+		str_content = check_args(argc, argv, env);
+	if (servers->size() == 0 && str_content.length() <= 0)
+		return (-1);
+	if (serveur_count == 0 && std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}') &&\
+		std::count(str_content.begin(), str_content.end(), '{') == check_nbserver(str_content))
 		serveur_count = std::count(str_content.begin(), str_content.end(), '{');
 	if (serveur_count <= 0)
-		exit (EXIT_FAILURE);
-	parse_file(str_content, serveur_count, servers, env);
+	{
+		std::cout << "Il y a une erreur dans le formatage du fichier .conf" << std::endl;
+		return (-1);
+	}
+	if (servers->size() == 0)
+		parse_file(str_content, serveur_count, servers, env);
 	if (servers->size() > 0)
 	{
 		servers_routine(servers, env);
 		clearservers(servers, NULL);
 	}
-	else if (servers->size() == 0)
-		std::cout << "Une erreur est survenue lors du parsing" << std::endl;
 	delete servers;
+	return (0);
 }

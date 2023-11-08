@@ -20,39 +20,33 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	str_client.append(r_client.data());		
 	it_b = server->GetDirContent()->begin();
 	it_e = server->GetDirContent()->end();
-	file_to_find = str_client.substr(4, str_client.find(" HTTP/1.1") - 4);
 	if (str_client.find("GET / HTTP/1.1") != std::string::npos)
-	{
-		r_file = readfileContent("Website/html/index.html", env);
-		stream_request << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n" <<\
-		"Content-Length: " << r_file.length() << "\r\n\r\n" << r_file;
-	}
+		file_to_find = "index.html";
 	else if (str_client.find("GET /") != std::string::npos)
+		file_to_find = str_client.substr(4, str_client.find(" HTTP/1.1") - 4);
+	while (it_b != it_e)
 	{
-		while (it_b != it_e)
-		{
-			path = *it_b;
-			if (path.find(file_to_find) != std::string::npos)
-				break ;
-			it_b++;
-		}
-		if (it_b != it_e)
-		{
-			request += *it_b;
-			if (extension_check(request.c_str()) == 4)
-				r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
-			else
-				r_file = readfileContent(request, env);
-			if (r_file.length() == 0)
-			{
-				std::cout << "Le fichier suivant : _" << *it_b << "_ n'a pu être ouvert" << std::endl;
-				return (stream_request.str());
-			}
-			stream_request << get_response_handler(request, r_file);
-		}
-		else if (it_b == it_e)
-			stream_request << error_handler(server->GetErrContent(), "404", env);
+		path = *it_b;
+		if (path.find(file_to_find) != std::string::npos)
+			break ;
+		it_b++;
 	}
+	if (it_b != it_e)
+	{
+		request += *it_b;
+		if (extension_check(request.c_str()) == 4)
+			r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
+		else
+			r_file = readfileContent(request, env);
+		if (r_file.length() == 0)
+		{
+			std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
+			return (stream_request.str());
+		}
+		stream_request << get_response_handler(request, r_file);
+	}
+	else if (it_b == it_e)
+		stream_request << error_handler(server->GetErrContent(), "404", env);
 	return (stream_request.str());
 }
 
@@ -125,6 +119,7 @@ static std::string calculate_form(long double num1, long double num2, std::vecto
 			return (error_handler(err_content, "418", env));
 		num1 /= num2;
 	}
+
 	str_stream << num1;
 	result = str_stream.str();
 	return (calculate_response(result));
@@ -162,4 +157,32 @@ std::string treat_calculate(std::vector<std::string>  *err_content, std::string 
 	}
 	result = calculate_form(num1, num2, err_content, data, env);
 	return(result);
+}
+
+std::string treat_concours(std::vector<std::string> *err_content, std::string data, char **env)
+{
+	std::string			value;
+	std::string			r_file;
+	std::ofstream		database;
+	std::ostringstream	str_to_append;
+	std::ostringstream	response;
+
+	value = "";
+	r_file = "";
+	database.open("database.txt", std::ios::app);
+	value = data.substr(4, (data.find("&prenom=") - 4));
+	if (checkallChar(value) != value.length())
+		return (error_handler(err_content, "400", env));
+	str_to_append << "Participant" << std::endl;
+	str_to_append << "Nom : " << value << std::endl;
+	value = data.substr((data.find("&prenom=") + 8), (data.find("&submit=") - (data.find("&prenom=") + 8)));
+	if (checkallChar(value) != value.length())
+		return (error_handler(err_content, "400", env));
+	str_to_append << "Prenom : " << value << std::endl;
+	database << str_to_append.str();
+	database.close();
+	r_file = readfileContent("Website/form/treated.php", env);
+	response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\n" <<\
+		"Content-Length: " << r_file.length() << "\r\n\r\n" << r_file;
+	return (response.str());
 }

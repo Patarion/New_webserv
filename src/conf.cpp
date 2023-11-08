@@ -28,15 +28,13 @@ Conf::Conf(Conf &src)
 
 Conf::~Conf() {
 	if (_html_content != NULL && _html_content->size() > 0)
-	{
 		_html_content->clear();
+	if (_html_content != NULL)
 		delete _html_content;
-	}
 	if (_error_pages != NULL && _error_pages->size() > 0)
-	{
 		_error_pages->clear();
+	if (_error_pages != NULL)
 		delete _error_pages;
-	}
 	if (_handled_fds != NULL)
 	{
 		if (_handled_fds->size() > 0)

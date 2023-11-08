@@ -45,7 +45,9 @@ std::string					request_handler(const std::vector<char> r_client, Conf *server, 
 std::string 				get_response_handler(std::string file, std::string file_content);
 std::string					check_args(int argc, char **argv, char **env);
 void						parse_file(std::string content, int serveur_count, std::map<int, Conf *> *servers, char **env);
-
-
+std::string					treat_concours(std::vector<std::string> *err_content, std::string data, char **env);
+unsigned long				checkallChar(std::string str);
+int							check_nbserver(std::string file_content);
+int							count_extension(std::vector<std::string> *dir_content, int extension);
 
 #endif

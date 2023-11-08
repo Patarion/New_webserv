@@ -74,6 +74,8 @@ std::vector<std::string> *directory_parser(std::string dir)
 	DIR	*tmpdir;
 	struct dirent *folder;
 
+	if (access(dir.c_str(), F_OK) != 0)
+		return(NULL);
 	if (dir[dir.length() - 1] != '/')
 		dir += "/";
 	directory = opendir(dir.c_str());

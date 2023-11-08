@@ -39,3 +39,52 @@ void clearservers(std::map<int, Conf *> *servers, Conf *conf_serv) {
 	servers = NULL;
 	return ;
 }
+
+unsigned long checkallChar(std::string str)
+{
+	int	nbr_char;
+
+	nbr_char = 0;
+	for (std::string::iterator it_b = str.begin() ; it_b != str.end() ; it_b ++)
+	{
+		if (std::isalpha(*it_b) != 0)
+			nbr_char++;
+	}
+	return (nbr_char);
+}
+
+int	check_nbserver(std::string file_content)
+{
+	int	count;
+
+	count = 0;
+	while (1)
+	{
+		if (file_content.find("server\n") != std::string::npos)
+		{
+			count++;
+			file_content = &file_content[file_content.find("server\n") + 8];
+		}
+		else if (file_content.find("server\n") == std::string::npos)
+			break ;
+	}
+	return (count);
+}
+
+int	count_extension(std::vector<std::string> *dir_content, int extension)
+{
+	std::vector<std::string>::iterator	it_b;
+	std::vector<std::string>::iterator	it_e;
+	int									count;
+
+	count = 0;
+	it_b = dir_content->begin();
+	it_e = dir_content->end();
+	while (it_b != it_e)
+	{
+		if (extension_check((*it_b).c_str()) == extension)
+			count++;
+		it_b++;
+	}
+	return (count);
+}

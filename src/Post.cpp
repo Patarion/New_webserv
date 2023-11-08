@@ -33,8 +33,7 @@ static std::vector<char> check_transmission(std::vector<char> r_client, std::str
 	int							ret;
 	std::vector<char>::iterator it_b;
 	std::vector<char>::iterator it_e;
-	std::vector<char>			data_recv(2000000);
-
+	std::vector<char>			data_recv(MAX_BUFF_SIZE);
 
 	cpy_delim = "";
 	cpy_data = "";
@@ -46,11 +45,11 @@ static std::vector<char> check_transmission(std::vector<char> r_client, std::str
 		cpy_data += *it_b;
 		it_b++;
 	}
-	while (cpy_data.find(cpy_delim) == std::string::npos && ret_recv < 2000000)
+	while (cpy_data.find(cpy_delim) == std::string::npos && ret_recv < MAX_BUFF_SIZE)
 	{
 		ret = 0;
 		data_recv.clear();
-		data_recv.resize(2000000);
+		data_recv.resize(MAX_BUFF_SIZE);
 		ret = recv(fd, data_recv.data(), data_recv.size(), 0);
 		data_recv.resize(ret);
 		ret_recv += ret;
@@ -91,6 +90,9 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		if (data.find("num1=") != std::string::npos && data.find("&operator=") != std::string::npos &&\
 			data.find("&num2=") != std::string::npos && data.find("&submit=Calculate") != std::string::npos)
 			return (treat_calculate(server->GetErrContent(), data, env));
+		else if (data.find("nom=") != std::string::npos && data.find("&prenom=") != std::string::npos &&\
+			data.find("&submit=database") != std::string::npos)
+			return (treat_concours(server->GetErrContent(), data, env));
 	}
 	else if (str_client.find("Content-Type: multipart/form-data;") != std::string::npos)
 	{
@@ -99,6 +101,8 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		pos = str_client.find("boundary=") + 9;
 		delim = double_quotes_trim(str_client, pos);
 		r_client = check_transmission(r_client, delim, fd, ret_recv);
+		if (r_client.size() >= MAX_BUFF_SIZE)
+			return (post_response(507, server->GetErrContent(), env));
 		data = treat_post(r_client, delim.c_str(), server, env);
 	}
 	return (data);
@@ -183,6 +187,7 @@ std::string	treat_post(std::vector<char> content, const char *delim, Conf *serve
 	return (post_response(200, server->GetDirContent(), env));
 }
 
+
 std::string	post_response(int code, std::vector<std::string> *dir_content, char **env)
 {
 	std::ostringstream	response;
@@ -212,5 +217,7 @@ std::string	post_response(int code, std::vector<std::string> *dir_content, char 
 	}
 	else if (code == 500)
 		response << "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nInternal Server Error: Transmission failure\r\n";
+	else if (code == 507)
+		response << "HTTP/1.1 507 Insufficient Storage\r\n" << "Content-Type: text/plain\r\nContent-Length: 35\r\n\r\nThe file is too big for this server";
 	return (response.str());
 }

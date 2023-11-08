@@ -1,0 +1,5 @@
+*.dSYM
+a.out*
+webserv
+.vscode
+.DS_Store
