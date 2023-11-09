@@ -40,7 +40,11 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	{
 		path = *it_b;
 		if (path.find(file_to_find) != std::string::npos)
-			break ;
+		{
+			path = &path[path.find(file_to_find)];
+			if (std::strncmp(path.c_str(), file_to_find.c_str(), file_to_find.length() + 1) == 0)
+				break ;
+		}
 		it_b++;
 	}
 	if (it_b != it_e)
