@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   webserv.cpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/09 11:08:16 by jgagnon           #+#    #+#             */
+/*   Updated: 2023/11/09 11:08:17 by jgagnon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/library.hpp"
 #include "../inc/conf.hpp"
 
@@ -197,6 +209,11 @@ int main (int argc, char **argv, char **env)
 	int						serveur_count;
 	bool					is_ok = false;
 
+	if (argc != 2)
+	{
+		std::cout << "Veuillez fournir qu'un seul argument" << std::endl;
+		return (1);
+	}
 	serveur_count = 0;
 	servers->clear();
 	path = argv[1];
@@ -207,7 +224,7 @@ int main (int argc, char **argv, char **env)
 		{
 			std::cout << "Le chemin ou le fichier pour le serveur individuel est inexistant ou inaccessible" << std::endl;
 			delete servers;
-			return (-1);
+			return (1);
 		}
 		is_ok = SetsingleServer(path, servers);
 		if (is_ok == true)
@@ -216,20 +233,20 @@ int main (int argc, char **argv, char **env)
 		{
 			clearservers(servers, NULL);
 			delete servers;
-			return (-1);
+			return (1);
 		}
 	}
 	if (servers->size() == 0)
 		str_content = check_args(argc, argv, env);
 	if (servers->size() == 0 && str_content.length() <= 0)
-		return (-1);
+		return (1);
 	if (serveur_count == 0 && std::count(str_content.begin(), str_content.end(), '{') == std::count(str_content.begin(), str_content.end(), '}') &&\
 		std::count(str_content.begin(), str_content.end(), '{') == check_nbserver(str_content))
 		serveur_count = std::count(str_content.begin(), str_content.end(), '{');
 	if (serveur_count <= 0)
 	{
 		std::cout << "Il y a une erreur dans le formatage du fichier .conf" << std::endl;
-		return (-1);
+		return (1);
 	}
 	if (servers->size() == 0)
 		parse_file(str_content, serveur_count, servers, env);

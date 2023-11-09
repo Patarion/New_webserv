@@ -9,7 +9,7 @@
 			"request": "launch",
 			"name": "Debug",
 			"program": "/Users/jgagnon/Desktop/New_webserv/webserv",
-			"args": ["Default.conf"],
+			"args": [],
 			"cwd": "${workspaceFolder}"
 		}
 	]
