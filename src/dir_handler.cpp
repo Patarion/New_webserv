@@ -49,23 +49,6 @@ static void sub_directories_handler(DIR *dir, std::string path, std::vector<std:
 	closedir(dir);
 }
 
-static void Show_DirContent(std::vector<std::string> dir_content)
-{
-	std::vector<std::string>::iterator	it_b;
-	std::vector<std::string>::iterator	it_e;
-
-	it_b = dir_content.begin();
-	it_e = dir_content.end();
-
-	std::cout << "Voici le contenu du dossier" << std::endl;
-	while (it_b != it_e)
-	{
-		std::cout << *it_b << std::endl;
-		it_b++;
-	}
-}
-
-//La fonction vérifie le contenu du dossier du server, si un p'tit malin fait un CHMOD du dossier c'est couvert :P
 std::vector<std::string> *directory_parser(std::string dir)
 {
 	std::string 				path;
@@ -88,7 +71,6 @@ std::vector<std::string> *directory_parser(std::string dir)
 		return (NULL);
 	}
 	folder = readdir(directory);
-	// Une fois le dossier où on est situé est ouvert, on analyse où les fichiers utiles au site web sont situé pour conserver
 	while (folder)
 	{
 		if (folder->d_name[0] != '.')
@@ -106,7 +88,7 @@ std::vector<std::string> *directory_parser(std::string dir)
 		path = "";
 		folder = readdir(directory);
 	}
-    Show_DirContent(*path_list);
+//	Show_DirContent(*path_list);
 	closedir(directory);
 	return (path_list);
 }

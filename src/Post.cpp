@@ -82,7 +82,6 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 		str_client += *it_b;
 		it_b++;
 	}
-	std::cout << str_client << std::endl;
 	if (str_client.find("Content-Type: application/x-www-form-urlencoded\r\n") != std::string::npos)
 	{
 		pos = str_client.find("\r\n\r\n");
@@ -96,7 +95,6 @@ std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int r
 	}
 	else if (str_client.find("Content-Type: multipart/form-data;") != std::string::npos)
 	{
-		std::cout << "Je dois récupérer un fichier" << std::endl;
 		pos = str_client.find("Content-Type: multipart/form-data; boundary=");
 		pos = str_client.find("boundary=") + 9;
 		delim = double_quotes_trim(str_client, pos);
@@ -160,7 +158,6 @@ std::string	treat_post(std::vector<char> content, const char *delim, Conf *serve
 				it_b++;
 				i++;
 			}
-			std::cout << "Voici la grosseur en byte du fichier : " << i << std::endl;
 			if (cpy_content.find(delim) != std::string::npos && \
 				(cpy_content[cpy_content.find(delim) - 1] != '-' && cpy_content[cpy_content.find(delim) - 2] != '-'))
 				data = cpy_content.substr(0, cpy_content.find(delim));

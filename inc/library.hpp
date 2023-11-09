@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   library.hpp                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/09 11:08:45 by jgagnon           #+#    #+#             */
+/*   Updated: 2023/11/09 11:08:47 by jgagnon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef LIBRARY_HPP
 # define LIBRARY_HPP
 # include <iostream>
@@ -49,5 +61,6 @@ std::string					treat_concours(std::vector<std::string> *err_content, std::strin
 unsigned long				checkallChar(std::string str);
 int							check_nbserver(std::string file_content);
 int							count_extension(std::vector<std::string> *dir_content, int extension);
+void						Show_DirContent(std::vector<std::string> dir_content);
 
 #endif

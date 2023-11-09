@@ -45,7 +45,6 @@ static bool setServeurInfo(std::string line, Conf *serveur, int i)
 		if (line.find(cpy_conf_var) != std::string::npos)
 			return  (false);
 	}
-	std::cout << "Information valide trouvée pour le serveur" << std::endl;
 	switch (i)
 	{
 		case 0:
@@ -159,8 +158,6 @@ void parse_file(std::string content, int serveur_count, std::map<int, Conf *> *s
 	if (nb_server >= serveur_count || content.find("server\n") == std::string::npos || servers == NULL)
 		return ;
 	server_data = content.substr(content.find("{") + 1 , (content.find("}") - content.find("{") - 1));
-	std::cout << "Je parse un serveur" << std::endl;
-	std::cout << server_data;
 	server_data.erase(std::remove_if(server_data.begin(), server_data.end(), keepsomeSpace), server_data.end());
 	if (server_data[0] == '\n')
 		server_data = &server_data[1];

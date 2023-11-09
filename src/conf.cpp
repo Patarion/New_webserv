@@ -82,7 +82,6 @@ void Conf::SetPort(unsigned int port) {
 }
 
 void Conf::SetMethods(std::string methods) {
-	std::cout << methods << std::endl;
 	if (((methods.find("GETPOSTDELETE") != std::string::npos && methods.length() == 13) || (methods.find("GETPOST") != std::string::npos && methods.length() == 7)\
 		|| (methods.find("GET") != std::string::npos && methods.length() == 3)))
 	{
