@@ -156,7 +156,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				close(it_b->first);
 			break ;
 		}
-		// std::cout << "____ ENFIN CALISS... r_select == [" << r_select << "] " << std::endl;
 	}
 }
 
@@ -214,7 +213,11 @@ int main (int argc, char **argv, char **env)
 		if (is_ok == true)
 			serveur_count = 1;
 		else if (is_ok == false)
+		{
+			clearservers(servers, NULL);
+			delete servers;
 			return (-1);
+		}
 	}
 	if (servers->size() == 0)
 		str_content = check_args(argc, argv, env);

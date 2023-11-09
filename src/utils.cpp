@@ -27,13 +27,16 @@ void clearservers(std::map<int, Conf *> *servers, Conf *conf_serv) {
 	std::map<int, Conf *>::iterator it_b;
 	std::map<int, Conf *>::iterator it_e;
 	
-	it_b = servers->begin();
-	it_e = servers->end();
-	while (it_b != it_e)
+	if (servers->size() > 0)
 	{
-		close(it_b->first);
-		delete it_b->second;
-		it_b++;
+		it_b = servers->begin();
+		it_e = servers->end();
+		while (it_b != it_e)
+		{
+			close(it_b->first);
+			delete it_b->second;
+			it_b++;
+		}
 	}
 	servers->clear();
 	servers = NULL;
@@ -87,4 +90,20 @@ int	count_extension(std::vector<std::string> *dir_content, int extension)
 		it_b++;
 	}
 	return (count);
+}
+
+void Show_DirContent(std::vector<std::string> dir_content)
+{
+	std::vector<std::string>::iterator	it_b;
+	std::vector<std::string>::iterator	it_e;
+
+	it_b = dir_content.begin();
+	it_e = dir_content.end();
+
+	std::cout << "Voici le contenu du dossier" << std::endl;
+	while (it_b != it_e)
+	{
+		std::cout << *it_b << std::endl;
+		it_b++;
+	}
 }
