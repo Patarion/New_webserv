@@ -57,7 +57,7 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 		if (r_file.length() == 0)
 		{
 			std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
-			return (stream_request.str());
+			return (error_handler(server->GetErrContent(), "500", env));
 		}
 		stream_request << get_response_handler(request, r_file);
 	}
