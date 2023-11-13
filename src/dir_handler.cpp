@@ -79,7 +79,7 @@ std::vector<std::string> *directory_parser(std::string dir)
 	if (directory == NULL)
 	{
 		delete path_list;
-		std::cerr << "Le dossier source n'a pu être ouvert (CHMOD S'TI) ou est inexistant!" << std::endl;
+		std::cout << "Le dossier source n'a pu être ouvert (CHMOD S'TI) ou est inexistant!" << std::endl;
 		return (NULL);
 	}
 	folder = readdir(directory);

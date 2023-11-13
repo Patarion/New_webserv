@@ -18,7 +18,7 @@ std::string readfileContent(std::string path, char **env) {
 		return (CGI_Handler(path, env));
 	std::ifstream file(path.c_str(), std::ios::binary);
 	if (!file){
-		std::cerr << "Le fichier mis en paramètre n'a pu être ouvert" << std::endl;
+		std::cout << "Le fichier mis en paramètre n'a pu être ouvert" << std::endl;
 		return ("");
 	}
 	std::ostringstream content(std::ios::binary);
