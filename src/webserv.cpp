@@ -61,7 +61,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				socklen_t	client_address_size = sizeof(client_address);
 				
 				client_socket = 0;
-				if (FD_ISSET(it_b->first, &cpy_read) > 0)
+				if (FD_ISSET(it_b->first, &cpy_read) != 0)
 				{
 					client_socket = accept(it_b->first, (struct sockaddr *)&client_address, &client_address_size);
 					if (client_socket != -1)
@@ -73,12 +73,11 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						if (client_socket > max_fd)
 							max_fd = client_socket;
 					}
-					break ;
 				}
 			}
 			for (std::vector<int>::iterator it_beg = client_fds->begin(); it_beg != client_fds->end(); it_beg++)
 			{
-				if (FD_ISSET(*it_beg, &cpy_read) > 0)
+				if (FD_ISSET(*it_beg, &cpy_read) != 0)
 				{	
 					r_recv = recv(*it_beg, &r_client[0], r_client.size(), 0);
 					if (r_recv > 0 && FD_ISSET(*it_beg, &write_fds) == 0)
@@ -112,7 +111,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
-				if (FD_ISSET(*it_beg, &cpy_write) > 0)
+				if (FD_ISSET(*it_beg, &cpy_write) != 0)
 				{
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
