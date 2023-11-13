@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   webserv.cpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*   By: gehebert <gehebert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 11:08:16 by jgagnon           #+#    #+#             */
-/*   Updated: 2023/11/09 11:08:17 by jgagnon          ###   ########.fr       */
+/*   Updated: 2023/11/13 11:58:04 by gehebert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,7 +87,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						FD_SET(*it_beg, &write_fds);
 						FD_SET(*it_beg, &cpy_write);
 					}
-					else if (r_recv <= 0)
+					else if (r_recv < 0)
 					{
 						FD_CLR(*it_beg, &read_fds);
 						FD_CLR(*it_beg, &cpy_read);
