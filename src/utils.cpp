@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.cpp                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*   By: gehebert <gehebert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 11:08:01 by jgagnon           #+#    #+#             */
-/*   Updated: 2023/11/09 11:08:02 by jgagnon          ###   ########.fr       */
+/*   Updated: 2023/11/13 12:31:13 by gehebert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ std::string readfileContent(std::string path, char **env) {
 		return (CGI_Handler(path, env));
 	std::ifstream file(path.c_str(), std::ios::binary);
 	if (!file){
-		std::cerr << "Le fichier mis en paramètre n'a pu être ouvert" << std::endl;
+		std::cout << "Le fichier mis en paramètre n'a pu être ouvert" << std::endl;
 		return ("");
 	}
 	std::ostringstream content(std::ios::binary);
