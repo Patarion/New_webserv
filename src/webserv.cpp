@@ -61,7 +61,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 				socklen_t	client_address_size = sizeof(client_address);
 				
 				client_socket = 0;
-				if (FD_ISSET(it_b->first, &cpy_read))
+				if (FD_ISSET(it_b->first, &cpy_read) > 0)
 				{
 					client_socket = accept(it_b->first, (struct sockaddr *)&client_address, &client_address_size);
 					if (client_socket != -1)
@@ -87,7 +87,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						FD_SET(*it_beg, &write_fds);
 						FD_SET(*it_beg, &cpy_write);
 					}
-					else if (r_recv <= 0)
+					else if (r_recv < 0)
 					{
 						FD_CLR(*it_beg, &read_fds);
 						FD_CLR(*it_beg, &cpy_read);
@@ -112,7 +112,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
 			{
-				if (FD_ISSET(*it_beg, &cpy_write))
+				if (FD_ISSET(*it_beg, &cpy_write) > 0)
 				{
 					for (std::map<int, Conf*>::iterator it_b = servers->begin() ; it_b != servers->end() ; it_b++)
 					{
@@ -179,7 +179,7 @@ static bool SetsingleServer(std::string path, std::map<int, Conf*> *servers)
 	error_pages = directory_parser("Error/");
 	single_serveur->SetErrorPages(error_pages);
 	single_serveur->SetPort(8000);
-	single_serveur->SetBodySize(50);
+	single_serveur->SetBodySize(50000);
 	single_serveur->SetAddrInfo();
 	single_serveur->SetMethods("GET");
 	single_serveur->SetServerContent(path);
