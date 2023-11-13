@@ -6,7 +6,7 @@
 /*   By: gehebert <gehebert@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2023/11/09 11:08:16 by jgagnon           #+#    #+#             */
-/*   Updated: 2023/11/13 11:58:04 by gehebert         ###   ########.fr       */
+/*   Updated: 2023/11/13 17:25:01 by gehebert         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 	{
 		FD_SET(it_b->first, &read_fds);
 		FD_SET(it_b->first, &write_fds);
-		ready->push_back(it_b->first);
+		ready->push_back(it_b->first); 
 		if (max_fd < it_b->first)
 			max_fd = it_b->first;
 	}
@@ -85,6 +85,8 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						ready->push_back(*it_beg);
 						FD_SET(*it_beg, &write_fds);
 						FD_SET(*it_beg, &cpy_write);
+						r_client.resize(r_recv);
+						break ;
 					}
 					else if (r_recv < 0)
 					{
@@ -105,8 +107,6 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 						close(*it_beg);
 						break ;
 					}
-					if (r_recv > 0)
-						r_client.resize(r_recv);
 				}
 			}
 			for(std::vector<int>::iterator it_beg = ready->begin(); it_beg != ready->end(); it_beg++)
@@ -137,7 +137,19 @@ void servers_routine(std::map<int, Conf *> *servers, char **env)
 							}
 							FD_CLR(*it_beg, &write_fds);
 							FD_CLR(*it_beg, &cpy_write);
+							FD_CLR(*it_beg, &read_fds);
+							FD_CLR(*it_beg, &cpy_read);
+							it_b->second->RemoveFD(*it_beg);
+							for (std::vector<int>::iterator it_begin = client_fds->begin(); it_begin != client_fds->end(); it_begin++)
+							{
+								if (*it_begin == *it_beg)
+								{
+									client_fds->erase(it_begin);
+									break ;
+								}
+							}
 							ready->erase(it_beg);
+							close(*it_beg);
 							r_client.clear();
 							r_client.resize(MAX_BUFF_SIZE);
 							response = "";
