@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Get.cpp                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/09 11:07:11 by jgagnon           #+#    #+#             */
+/*   Updated: 2023/11/09 11:07:14 by jgagnon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/conf.hpp"
 #include "../inc/library.hpp"
 
@@ -28,7 +40,11 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	{
 		path = *it_b;
 		if (path.find(file_to_find) != std::string::npos)
-			break ;
+		{
+			path = &path[path.find(file_to_find)];
+			if (std::strncmp(path.c_str(), file_to_find.c_str(), file_to_find.length() + 1) == 0)
+				break ;
+		}
 		it_b++;
 	}
 	if (it_b != it_e)
@@ -41,7 +57,7 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 		if (r_file.length() == 0)
 		{
 			std::cout << "Le fichier suivant : " << *it_b << " n'a pu être ouvert" << std::endl;
-			return (stream_request.str());
+			return (error_handler(server->GetErrContent(), "500", env));
 		}
 		stream_request << get_response_handler(request, r_file);
 	}

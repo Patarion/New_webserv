@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   Post.cpp                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: jgagnon <marvin@42quebec.com>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2023/11/09 11:07:33 by jgagnon           #+#    #+#             */
+/*   Updated: 2023/11/09 11:07:34 by jgagnon          ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "../inc/conf.hpp"
 #include "../inc/library.hpp"
 
@@ -161,7 +173,7 @@ std::string	treat_post(std::vector<char> content, const char *delim, Conf *serve
 			if (cpy_content.find(delim) != std::string::npos && \
 				(cpy_content[cpy_content.find(delim) - 1] != '-' && cpy_content[cpy_content.find(delim) - 2] != '-'))
 				data = cpy_content.substr(0, cpy_content.find(delim));
-			else 
+			else
 				data = cpy_content.substr(0, cpy_content.find(delim) - 2);
 			cpy_content = &cpy_content[data.length()];
 			out_file.open(file_name.c_str(), std::ios::out);
@@ -213,7 +225,7 @@ std::string	post_response(int code, std::vector<std::string> *dir_content, char 
 		response << "HTTP/1.1 200 OK\r\nContent-Type: text/html\r\nContent-Length: " << r_page.length() << "\r\n\r\n" << r_page;
 	}
 	else if (code == 500)
-		response << "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\n\r\nInternal Server Error: Transmission failure\r\n";
+		response << "HTTP/1.1 500 Internal Server Error\r\nContent-Type: text/plain\r\nContent-Length: 43\r\n\r\nInternal Server Error: Transmission failure";
 	else if (code == 507)
 		response << "HTTP/1.1 507 Insufficient Storage\r\n" << "Content-Type: text/plain\r\nContent-Length: 35\r\n\r\nThe file is too big for this server";
 	return (response.str());
