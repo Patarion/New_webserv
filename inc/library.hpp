@@ -62,5 +62,6 @@ unsigned long				checkallChar(std::string str);
 int							check_nbserver(std::string file_content);
 int							count_extension(std::vector<std::string> *dir_content, int extension);
 void						Show_DirContent(std::vector<std::string> dir_content);
+std::string					err_msg_gen(int err_code);
 
 #endif

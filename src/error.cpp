@@ -13,7 +13,7 @@
 #include "../inc/library.hpp"
 #include "../inc/conf.hpp"
 
-static std::string err_msg_gen(int err_code)
+std::string err_msg_gen(int err_code)
 {
 	switch (err_code) {
 		case 400 :

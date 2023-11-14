@@ -25,10 +25,7 @@ std::string 	CGI_Handler(std::string file, char **env)
 		
 	i = 0;
 	if (pipe(pipe_fd) == -1)
-	{
-		//error handler here
 		return (r_CGI);
-	}
 	while (file[i] != '\0')
 	{
 		char_file[i] = file[i];
@@ -40,7 +37,6 @@ std::string 	CGI_Handler(std::string file, char **env)
 	proc_exec = fork();
 	if (proc_exec == -1)
 	{
-		// error handler here
 		return (r_CGI);
 	}
 	else if (proc_exec == 0)
@@ -49,12 +45,8 @@ std::string 	CGI_Handler(std::string file, char **env)
 		dup2(pipe_fd[1], STDOUT_FILENO);
 		close(pipe_fd[1]);
 		
-		/*	spec execve ...*/
 		if (execve("/usr/bin/php", arg_tab, env) == -1)
-		{
 			std::cout << "Exceve est de la marde" << std::endl;
-			//error handler here
-		}
 	}
 	else if (proc_exec > 0)
 	{

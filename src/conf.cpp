@@ -35,7 +35,7 @@ Conf::Conf() {
 
 Conf::Conf(Conf &src)
 {
-	*this = src; //Copier les variables
+	*this = src;
 }
 
 Conf::~Conf() {
@@ -109,7 +109,7 @@ void Conf::SetMethods(std::string methods) {
 void Conf::SetAddrInfo() {
 	memset((void *) &_addr_data, 0, sizeof(_addr_data));
 	_addr_data.sin_family = AF_INET;
-	_addr_data.sin_addr.s_addr = htonl(2130706433); //127.0.0.1 addresse locale
+	_addr_data.sin_addr.s_addr = htonl(2130706433);
 	_addr_data.sin_port = htons(this->_port);
 
 }
@@ -181,7 +181,7 @@ Conf &Conf::operator=(Conf &src){
 	return (*this);
 }
 
-std::string Conf::GetErrorPage(std::string page, char **env){
+std::string Conf::GetErrorPage(std::string page, char **env, int err_code){
 	std::vector<std::string>::iterator	it_b;
 	std::vector<std::string>::iterator	it_e;
 	std::string							path;
@@ -200,9 +200,7 @@ std::string Conf::GetErrorPage(std::string page, char **env){
 	if (it_b != it_e)
 		page_content = readfileContent(*it_b, env);
 	else if (it_b == it_e || page_content == "")
-	{
-		// Generate page
-	}
+		page_content = err_msg_gen(err_code);
 	return (page_content);
 }
 
@@ -225,7 +223,7 @@ std::string Conf::GetDirPage(std::string page, char **env){
 	if (it_b != it_e)
 		page_content = readfileContent(*it_b, env);
 	else if (it_b == it_e && (extension_check(page.c_str()) == 0 || extension_check(page.c_str()) == 4))
-		page_content = GetErrorPage("404", env);
+		page_content = GetErrorPage("404", env, 404);
 	return (page_content);
 }
 

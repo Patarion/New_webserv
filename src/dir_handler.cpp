@@ -100,7 +100,6 @@ std::vector<std::string> *directory_parser(std::string dir)
 		path = "";
 		folder = readdir(directory);
 	}
-//	Show_DirContent(*path_list);
 	closedir(directory);
 	return (path_list);
 }

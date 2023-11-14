@@ -51,12 +51,6 @@ std::string check_args(int argc, char **argv, char **env)
 
 static bool setServeurInfo(std::string line, Conf *serveur, int i)
 {
-	for (int j = 0; conf_var[j] != NULL ; j++)
-	{
-		std::string	cpy_conf_var = conf_var[j];
-		if (line.find(cpy_conf_var) != std::string::npos)
-			return  (false);
-	}
 	switch (i)
 	{
 		case 0:
@@ -127,6 +121,13 @@ static bool setServeurInfo(std::string line, Conf *serveur, int i)
 	}
 }
 
+static bool checkServer(Conf *server)
+{
+	if (server->GetPort() == 0 || server->GetBodySize() == 0 || server->GetGet() == false)
+		return (false);
+	return (true);
+}
+
 static bool setServeur(std::string data, Conf *serveur)
 {
 	std::string line;
@@ -144,7 +145,14 @@ static bool setServeur(std::string data, Conf *serveur)
 			cpy_var_name = conf_var[i];
 			if (data.find(cpy_var_name) != std::string::npos && data.find(cpy_var_name) == 0)
 			{
-				if (treated[i] == false)
+				int	j;
+				for (j = 0; conf_var[j] != NULL ; j++)
+				{
+					std::string	cpy_conf_var = conf_var[j];
+					if (data.find(cpy_conf_var) != std::string::npos && std::strncmp(data.c_str(), cpy_conf_var.c_str(), cpy_conf_var.length()) == 0)
+						break ;
+				}
+				if (treated[i] == false && j < 5)
 				{
 					line = &data[data.find(cpy_var_name) + cpy_var_name.length()];
 					line = line.substr(0, line.find_first_of('\n'));
@@ -152,12 +160,14 @@ static bool setServeur(std::string data, Conf *serveur)
 					if (setServeurInfo(line, serveur, i) == false)
 						return (false);
 				}
-				data = &data[data.find_first_of('\n') + 1];
 				break ;
 			}
 		}
+		data = &data[data.find_first_of('\n') + 1];
 		cycle--;
 	}
+	if (checkServer(serveur) == false)
+		return (false);
 	serveur->SetServerContent("Website/");
 	return (true);
 }

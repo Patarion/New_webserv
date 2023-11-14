@@ -32,7 +32,7 @@ class Conf {
 	void						SetAddrInfo();
 	void						InitHandledFDs();
 	void						AddHandledFDs(int fd);
-	std::string					GetErrorPage(std::string page, char **env);
+	std::string					GetErrorPage(std::string page, char **env, int err_code);
 	std::string					GetDirPage(std::string file, char **env);
 	unsigned int				GetPort();
 	unsigned int				GetAddress();

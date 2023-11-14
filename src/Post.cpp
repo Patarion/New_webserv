@@ -77,7 +77,7 @@ static std::vector<char> check_transmission(std::vector<char> r_client, std::str
 	return (r_client);
 }
 
-std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int ret_recv, char **env) // À voir, mais je risque d'avoir de besoin de l'URL de la page pour append les infos du site web
+std::string post_handler(std::vector<char> r_client, Conf *server, int fd, int ret_recv, char **env)
 {
 	std::ostringstream	r_post;
 	std::string			data;

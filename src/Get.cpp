@@ -51,7 +51,7 @@ std::string 	get_handler(std::vector<char> r_client, Conf *server, char **env)
 	{
 		request += *it_b;
 		if (extension_check(request.c_str()) == 4)
-			r_file = CGI_Handler(request, env); // On gère juste PHP, mais il sera facile d'ajouter d'autres CGI
+			r_file = CGI_Handler(request, env);
 		else
 			r_file = readfileContent(request, env);
 		if (r_file.length() == 0)
